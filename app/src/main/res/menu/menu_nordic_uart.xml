@@ -36,7 +36,9 @@
             <item android:id="@+id/menu_hot_keys"  android:title="AT&amp;RUN#"/>
             <item android:id="@+id/menu_hot_keys"  android:title="AT&amp;STOP#"/>
             <item android:id="@+id/menu_hot_keys"  android:title="AT&amp;TEST#"/>
-            <item android:id="@+id/menu_koso_test"  android:title="Throughput test"/>
+            <item android:id="@+id/menu_throughput_test100"  android:title="Throughput 100 test"/>
+            <item android:id="@+id/menu_throughput_test1k"  android:title="Throughput 1k test"/>
+            <item android:id="@+id/menu_throughput_test10k"  android:title="Throughput 10k test"/>
         </menu>
     </item>
 </menu>

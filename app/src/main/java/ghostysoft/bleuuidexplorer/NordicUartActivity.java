@@ -101,19 +101,29 @@ public class NordicUartActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        String pattern100="A123456789B123456789C123456789D123456789E123456789F123456789G123456789H123456789I123456789J123456789";
+        String pattern1K = pattern100+pattern100+pattern100+pattern100+pattern100+pattern100+pattern100+pattern100+pattern100+pattern100;
+        String pattern10K = pattern1K+pattern1K+pattern1K+pattern1K+pattern1K+pattern1K+pattern1K+pattern1K+pattern1K+pattern1K;
+
         switch (item.getItemId()) {
             case R.id.menu_hot_keys:
                 Log.d(TAG, "menu hot keys selected");
                 mTxData.setText(item.getTitle());
                 //sendMessage.setSelection(sendMessage.getText().length());
                 return true;
-            case R.id.menu_koso_test:
-                Log.d(TAG, "menu_koso_test selected");
-                mTxData.setText("A123456789B123456789C123456789D123456789E123456789F123456789G123456789H123456789I123456789J123456789");
+            case R.id.menu_throughput_test100:
+                Log.d(TAG, "menu_throughput_test selected");
+                mTxData.setText(pattern100);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test1k:
+                Log.d(TAG, "menu_throughput_test selected");
+                mTxData.setText(pattern1K);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test10k:
+                Log.d(TAG, "menu_throughput_test selected");
+                mTxData.setText(pattern10K);
                 //sendMessage.setSelection(sendMessage.getText().length());
                 return true;
         }
