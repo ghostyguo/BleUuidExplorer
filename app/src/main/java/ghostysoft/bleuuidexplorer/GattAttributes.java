@@ -5,16 +5,23 @@ package ghostysoft.bleuuidexplorer;
  */
 
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * This class includes a small subset of standard GATT attributes for demonstration purposes.
  */
-public class SampleGattAttributes {
+public class GattAttributes {
     private static HashMap<String, String> attributes = new HashMap();
-    public static String HEART_RATE_MEASUREMENT = "00002a37-0000-1000-8000-00805f9b34fb";
-    public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
-    public static String NORDIC_UART_RX = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
-    public static String NORDIC_UART_TX = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+    //public static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
+    public static UUID UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    public static UUID UUID_NORDIC_UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+    public static UUID UUID_NORDIC_UART_RX_CHAR = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+    public static UUID UUID_NORDIC_UART_TX_CHAR = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+
+    public static String lookup(String uuid, String defaultName) {
+        String name = attributes.get(uuid);
+        return name == null ? defaultName : name;
+    }
 
     static {
         // Sample Services.
@@ -391,10 +398,5 @@ public class SampleGattAttributes {
        // attributes.put("a3df3df0-9578-7363-2d95-307671bf9983", "iPad");
        // attributes.put("d0611e78-bbb4-4591-a5f8-487910ae4366", "iPad unknown Service");
        // attributes.put("8667556c-9a37-4c91-84ed-54ee27d90049", "iPad unknown characteristic");
-    }
-
-    public static String lookup(String uuid, String defaultName) {
-        String name = attributes.get(uuid);
-        return name == null ? defaultName : name;
     }
 }

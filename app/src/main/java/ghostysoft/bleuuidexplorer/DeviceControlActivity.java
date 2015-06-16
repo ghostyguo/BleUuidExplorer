@@ -1,11 +1,13 @@
 package ghostysoft.bleuuidexplorer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -19,10 +21,11 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class DeviceControlActivity extends Activity {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
@@ -30,22 +33,26 @@ public class DeviceControlActivity extends Activity {
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-    private String mDeviceName;
-    private String mDeviceAddress;
+    public static BluetoothGattCharacteristic mTargetCharacteristic; //Common variable for Read/Write operation
+    public static BluetoothLeService mBluetoothLeService; //Common variable for Read/Write operation
+    public static String mDeviceName;   //Common variable for Read/Write operation
+    public static String mDeviceAddress; //Common variable for Read/Write operation
+    public static boolean mConnected = false;  //Common variable for Read/Write operation
+
     private TextView mConnectionState;
     private TextView mRSSI;
     private TextView mDataField;
     private ExpandableListView mGattServicesList;
-    private BluetoothLeService mBluetoothLeService;
+
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-    private boolean mConnected = false;
-    private BluetoothGattCharacteristic mNotifyCharacteristic;
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
     private final String LIST_PROPERTIES = "PROPERTIES";
     private final String LIST_PERMISSION = "PERMISSION";
+
+    AlertDialog NordicSelectDialog;
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -73,25 +80,27 @@ public class DeviceControlActivity extends Activity {
     // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
     // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
     //                        or notification operations.
+
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+            if (action.equals(BluetoothLeService.ACTION_GATT_CONNECTED)) {
                 mConnected = true;
                 updateConnectionState(R.string.connected);
                 invalidateOptionsMenu();
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+            } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)) {
                 mConnected = false;
+                mTargetCharacteristic = null;
                 updateConnectionState(R.string.disconnected);
                 invalidateOptionsMenu();
                 clearUI();
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+            } else if (action.equals(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)) {
                 // Show all the supported services and characteristics on the user interface.
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+            } else if (action.equals(BluetoothLeService.ACTION_DATA_AVAILABLE)) {
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
-            } else if (BluetoothLeService.RSSI_DATA_AVAILABLE.equals(action)) {
+            } else if (action.equals(BluetoothLeService.RSSI_DATA_AVAILABLE)) {
                 displayRSSI(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
              Log.d(TAG, "BroadcastReceiver.onReceive():action="+action);
@@ -108,11 +117,26 @@ public class DeviceControlActivity extends Activity {
                 public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                             int childPosition, long id) {
                     if (mGattCharacteristics != null) {
-                        mDataField.setText("not received"); //clear
-                        final BluetoothGattCharacteristic characteristic =
-                                mGattCharacteristics.get(groupPosition).get(childPosition);
-                        final int charaProp = characteristic.getProperties();
 
+                        Log.d(TAG, String.format("*** ExpandableListView.OnChildClickListener group=%d, child=%d, id=%d", groupPosition, childPosition, id));
+
+                        mDataField.setText("not received"); //clear
+                        mTargetCharacteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
+                      //  final int charaProp = characteristic.getProperties();
+
+                        Log.d(TAG, String.format("*** ExpandableListView.OnChildClickListener uuid=%s",mTargetCharacteristic.getUuid()));
+                        UUID uuid=mTargetCharacteristic.getUuid();
+                        //final Intent intent;
+
+
+                        if (uuid.equals(GattAttributes.UUID_NORDIC_UART_RX_CHAR) ||
+                           uuid.equals(GattAttributes.UUID_NORDIC_UART_TX_CHAR)) { //Nordic Uart Service
+                            NordicSelectDialog.show();
+                        } else {
+                            final Intent intent = new Intent(DeviceControlActivity.this, CharacteristicReadWriteActivity.class); //default
+                            startActivity(intent);
+                        }
+                        /*
                         // Notify first, then Read
                         if ((charaProp & BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
                             if (mNotifyCharacteristic == null) {
@@ -137,7 +161,12 @@ public class DeviceControlActivity extends Activity {
                             Toast.makeText(DeviceControlActivity.this, "Read", Toast.LENGTH_SHORT).show();
                             mBluetoothLeService.readCharacteristic(characteristic);
                         }
+                        */
                         return true;
+                    }
+                    else
+                    {
+                        mTargetCharacteristic = null;
                     }
                     return false;
                 }
@@ -169,6 +198,23 @@ public class DeviceControlActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+        //intent = new Intent(DeviceControlActivity.this, NordicUarActivityt.class);
+        final String[] items = {"Generic IO","Nordic UART"};
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select I/O Control").setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) { //Generic IO
+                    final Intent intent = new Intent(DeviceControlActivity.this, CharacteristicReadWriteActivity.class); //Generic
+                    startActivity(intent);
+                } else //
+                {
+                    final Intent intent = new Intent(DeviceControlActivity.this, NordicUartActivity.class); //Nordic
+                    startActivity(intent);
+                }
+            }
+        });
+        NordicSelectDialog = builder.create();
     }
 
     @Override
@@ -265,7 +311,7 @@ public class DeviceControlActivity extends Activity {
             HashMap<String, String> currentServiceData = new HashMap<String, String>();
             uuid = gattService.getUuid().toString();
             currentServiceData.put(
-                    LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+                    LIST_NAME, GattAttributes.lookup(uuid, unknownServiceString));
             currentServiceData.put(LIST_UUID, uuid);
             gattServiceData.add(currentServiceData);
 
@@ -286,7 +332,7 @@ public class DeviceControlActivity extends Activity {
                 uuid = gattCharacteristic.getUuid().toString();
 
                 currentCharaData.put(
-                        LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+                        LIST_NAME, GattAttributes.lookup(uuid, unknownCharaString));
                 currentCharaData.put(LIST_UUID, uuid);
 
                 final int charaProp = gattCharacteristic.getProperties();
@@ -370,7 +416,7 @@ public class DeviceControlActivity extends Activity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+       // intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE); //removed by ghosty
         intentFilter.addAction(BluetoothLeService.RSSI_DATA_AVAILABLE); //ghosty
         return intentFilter;
     }

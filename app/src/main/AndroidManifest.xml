@@ -20,6 +20,7 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -27,18 +28,22 @@
             android:name=".DeviceControlActivity"
             android:parentActivityName=".DeviceScanActivity" >
         </activity>
+        <activity
+            android:name=".CharacteristicReadWriteActivity"
+            android:label="@string/title_activity_characteristic_read_write" >
+        </activity>
 
         <service
             android:name=".BluetoothLeService"
             android:enabled="true" />
 
         <activity
-            android:name=".ScanResultActivity"
-            android:label="@string/title_activity_scan_result"
-            android:parentActivityName=".DeviceScanActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="ghostysoft.bleuuidexplorer.DeviceScanActivity" />
+            android:name=".NordicUartActivity"
+            android:label="@string/title_activity_nordic_uart" >
+        </activity>
+        <activity
+            android:name=".NordicSelectDialog"
+            android:label="@string/title_activity_characteristic_read_write_select_dialog" >
         </activity>
     </application>
 

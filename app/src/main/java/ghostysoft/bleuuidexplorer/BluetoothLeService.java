@@ -1,6 +1,5 @@
 package ghostysoft.bleuuidexplorer;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,6 +15,8 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,7 +33,7 @@ public class BluetoothLeService extends Service {
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
-    private BluetoothGatt mBluetoothGatt;
+    public  BluetoothGatt mBluetoothGatt;
     private int mConnectionState = STATE_DISCONNECTED;
 
     private static final int STATE_DISCONNECTED = 0;
@@ -40,25 +41,29 @@ public class BluetoothLeService extends Service {
     private static final int STATE_CONNECTED = 2;
 
     public final static String ACTION_GATT_CONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
+            "ghostysoft.bleuuidexplorer.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
+            "ghostysoft.bleuuidexplorer.ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+            "ghostysoft.bleuuidexplorer.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
-            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
+            "ghostysoft.bleuuidexplorer.ACTION_DATA_AVAILABLE";
     public final static String RSSI_DATA_AVAILABLE =
-            "com.example.bluetooth.le.RSSI_DATA_AVAILABLE";
+            "ghostysoft.bleuuidexplorer..RSSI_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
-
-    public final static UUID UUID_HEART_RATE_MEASUREMENT =
-            UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
+            "ghostysoft.bleuuidexplorer.EXTRA_DATA";
+    public final static String DEVICE_DOES_NOT_SUPPORT_UART =
+            "com.nordicsemi.nrfUART.DEVICE_DOES_NOT_SUPPORT_UART";
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
     private Timer mRssiTimer;
     private boolean IsTimerShouldCancel;
+
+    //Long Packer
+    static int packetStartPos = 0;
+    static int packetLength = 0;
+    byte[] packetPayload;
     public final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -68,9 +73,10 @@ public class BluetoothLeService extends Service {
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
+
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" +
-                        mBluetoothGatt.discoverServices());
+                Boolean discoverResult = mBluetoothGatt.discoverServices();
+                Log.i(TAG, "Start service discovery result: " + discoverResult);
 
                 // Create Timer task to poll rssi
                 IsTimerShouldCancel=false;
@@ -118,6 +124,41 @@ public class BluetoothLeService extends Service {
         }
 
         @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            //After writing the enable flag, next we read the initial value
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                BluetoothGattService RxService = mBluetoothGatt.getService(GattAttributes.UUID_NORDIC_UART_SERVICE);
+                BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(GattAttributes.UUID_NORDIC_UART_RX_CHAR);
+                if (characteristic.equals(RxChar)) {
+                    //Continue Nordic Write
+                    String payloadString = new String(packetPayload);
+                    Log.d(TAG," Packet payload= "+payloadString);
+                    /*
+                    try {
+                        Log.d(TAG, " Packet Sleep");
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    */
+                    packetStartPos += 20;
+                    if (packetStartPos<packetPayload.length) {
+                        packetLength = (packetPayload.length - packetStartPos > 20) ? 20 : packetPayload.length - packetStartPos;
+                        Log.d(TAG, "Total Length = " + packetPayload.length + ", Packet Length = " + packetLength);
+                        byte[] packetBuffer = Arrays.copyOfRange(packetPayload, packetStartPos, packetStartPos+packetLength);
+                        String packetString = new String(packetBuffer);
+                        Log.d(TAG," Packet = "+packetString);
+                        RxChar.setValue(packetBuffer);
+                        boolean writeStatus = mBluetoothGatt.writeCharacteristic(RxChar);
+                        Log.d(TAG, " Packet write Nordic RXchar - status=" + writeStatus);
+                    } else {
+                        Log.d(TAG, " Packet Write Complete");
+                    }
+                }
+            }
+        }
+
+        @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
@@ -152,6 +193,8 @@ public class BluetoothLeService extends Service {
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
+
+        /*
         if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
             int flag = characteristic.getProperties();
             int format = -1;
@@ -174,6 +217,16 @@ public class BluetoothLeService extends Service {
                     strRxData.append(String.format("%02X ", byteChar));
                 //intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
                 intent.putExtra(EXTRA_DATA, "0x" + strRxData.toString()); //by ghosty
+            }
+        } */
+        if (characteristic.getUuid().equals(GattAttributes.UUID_NORDIC_UART_TX_CHAR)) {
+
+            // Log.d(TAG, String.format("Received TX: %d",characteristic.getValue() ));
+            intent.putExtra(EXTRA_DATA, characteristic.getValue());
+        } else {
+            final byte[] data = characteristic.getValue();
+            if (data != null && data.length > 0) {
+                intent.putExtra(EXTRA_DATA, data);
             }
         }
         sendBroadcast(intent);
@@ -347,12 +400,131 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         // This is specific to Heart Rate Measurement.
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGatt.writeDescriptor(descriptor);
+        //if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(GattAttributes.UUID_CLIENT_CHARACTERISTIC_CONFIG);
+            // debug
+           // Log.d(TAG,  String.format("notify descriptor length=%d", descriptor.getValue().length));
+            //byte[] descriptorData = new byte[descriptor.getValue().length];
+            //System.arraycopy(descriptorData, 0, descriptor.getValue(), 0, descriptorData.length);
+            //final StringBuilder strDescriptor = dumpHex(descriptorData);
+           // Log.d(TAG,  "get notify descriptor :".append(strDescriptor));
+            final StringBuilder strEnableNotifyValue = dumpHex(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            Log.d(TAG, String.format("enable notify value : %s ",strEnableNotifyValue));
+
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+
+        mBluetoothGatt.writeDescriptor(descriptor);
+        //}
+    }
+
+    public void setCharacteristicIndication(BluetoothGattCharacteristic characteristic,
+                                              boolean enabled) {
+        Log.w(TAG, "BluetoothLeService.setCharacteristicNotification()");
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            Log.w(TAG, "BluetoothAdapter not initialized");
+            return;
         }
+        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+
+        // This is specific to Heart Rate Measurement.
+        //if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(GattAttributes.UUID_CLIENT_CHARACTERISTIC_CONFIG);
+        // debug
+        // Log.d(TAG,  String.format("notify descriptor length=%d", descriptor.getValue().length));
+        //byte[] descriptorData = new byte[descriptor.getValue().length];
+        //System.arraycopy(descriptorData, 0, descriptor.getValue(), 0, descriptorData.length);
+        //final StringBuilder strDescriptor = dumpHex(descriptorData);
+        // Log.d(TAG,  "get notify descriptor :".append(strDescriptor));
+        final StringBuilder strEnableNotifyValue = dumpHex(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+        Log.d(TAG, String.format("enable indication value : %s ",strEnableNotifyValue));
+
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+
+        mBluetoothGatt.writeDescriptor(descriptor);
+        //}
+    }
+
+    StringBuilder dumpHex(byte data[]) {
+        Log.d(TAG, "dumpHex()");
+        final StringBuilder strResult = new StringBuilder();
+        for (int i=0; i<data.length; i++)
+            strResult.append(String.format("%02X ", data[i]));
+        return strResult;
+    }
+
+    StringBuilder dumpHex(byte data[], int length) {
+        Log.d(TAG, String.format("dumpHex() length=%d",length));
+        final StringBuilder strResult = new StringBuilder();
+        for (int i=0; i<length; i++)
+            strResult.append(String.format("%02X ", data[i]));
+        return strResult;
+    }
+
+    StringBuilder dumpHex(byte data[], int start, int length) {
+        Log.d(TAG, String.format("dumpHex() start=%d, length=%d", start, length));
+        final StringBuilder strResult = new StringBuilder();
+        for (int i=start; i<start+length; i++)
+            strResult.append(String.format("%02X ", data[i]));
+        return strResult;
+    }
+    /**
+     * Enable TXNotification
+     *
+     * @return
+     */
+    public void enableTXNotification()
+    {
+    	/*
+    	if (mBluetoothGatt == null) {
+    		showMessage("mBluetoothGatt null" + mBluetoothGatt);
+    		broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+    		return;
+    	}
+    		*/
+        BluetoothGattService RxService = mBluetoothGatt.getService(GattAttributes.UUID_NORDIC_UART_SERVICE);
+        if (RxService == null) {
+           Log.d(TAG,"Rx service not found!");
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            return;
+        }
+        BluetoothGattCharacteristic TxChar = RxService.getCharacteristic(GattAttributes.UUID_NORDIC_UART_TX_CHAR);
+        if (TxChar == null) {
+            Log.d(TAG,"Tx charateristic not found!");
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            return;
+        }
+        mBluetoothGatt.setCharacteristicNotification(TxChar, true);
+
+        BluetoothGattDescriptor descriptor = TxChar.getDescriptor(GattAttributes.UUID_CLIENT_CHARACTERISTIC_CONFIG);
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        mBluetoothGatt.writeDescriptor(descriptor);
+    }
+
+    public void writeRXCharacteristic(byte[] value)
+    {
+        BluetoothGattService RxService = mBluetoothGatt.getService(GattAttributes.UUID_NORDIC_UART_SERVICE);
+        Log.d(TAG,"writeRXCharacteristic");
+        if (RxService == null) {
+            Log.d(TAG,"Rx service not found!");
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            return;
+        }
+        BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(GattAttributes.UUID_NORDIC_UART_RX_CHAR);
+        if (RxChar == null) {
+            Log.d(TAG,"Rx charateristic not found!");
+            broadcastUpdate(DEVICE_DOES_NOT_SUPPORT_UART);
+            return;
+        }
+
+        packetPayload = Arrays.copyOf(value,value.length); //Reserve the Content
+
+        packetStartPos = 0; //begin
+        packetLength = (value.length-packetStartPos>20) ? 20 : value.length-packetStartPos;
+        Log.d(TAG, "Total Length = "+value.length + ", Packet Length = " + packetLength);
+        byte[] packetBuffer = Arrays.copyOfRange(value, packetStartPos, packetLength);
+        RxChar.setValue(packetBuffer);
+        boolean writeStatus = mBluetoothGatt.writeCharacteristic(RxChar);
+        Log.d(TAG, "write Nordic RXchar - status=" + writeStatus);
     }
 
     /**

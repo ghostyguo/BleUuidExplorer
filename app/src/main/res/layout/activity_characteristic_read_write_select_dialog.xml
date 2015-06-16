@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="vertical"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_margin="10dp"><![CDATA[
+    tools:context="ghostysoft.bleuuidexplorer.NordicSelectDialog"
+    style="@style/Base.Theme.AppCompat.Dialog">
+
+    ]]>
+
+    <Button
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:text="Generic IO"
+        android:id="@+id/btnGenericIOSelect"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:text="Nordic UART"
+        android:id="@+id/btnNordicUartSelect"
+        android:layout_gravity="center_horizontal" />
+
+</LinearLayout>

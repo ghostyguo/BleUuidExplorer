@@ -16,9 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -308,6 +306,7 @@ public class DeviceScanActivity extends ListActivity {
             while (p<scanDevice[i].scanRecord.length) {
                 byte fieldLength = scanDevice[i].scanRecord[p];
                 byte fieldType =  scanDevice[i].scanRecord[p+1];
+                Integer  uuid16;
                 Log.d(TAG, String.format(" scan field ptr=%d, length=%d, type = 0x%02X", p, fieldLength, fieldType));
                 switch (fieldType) {
                     case (byte)0x01: //Flags
@@ -341,10 +340,22 @@ public class DeviceScanActivity extends ListActivity {
 
                     case (byte)0x02:
                         strEIR.append("[0x02] More 16-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        for (int u=0; u<fieldLength-1; u+=2) {
+                            uuid16 = (scanDevice[i].scanRecord[p+2+u] & 0xFF) | ((scanDevice[i].scanRecord[p+3+u] & 0xFF) << 8);
+                            String strUUID = String.format("0000%04x-0000-1000-8000-00805f9b34fb",uuid16);
+                            Log.d(TAG, String.format("More 16-bit UUIDs = %s",strUUID));
+                            strEIR.append(String.format("     0x%04X: %s\n", uuid16, GattAttributes.lookup(strUUID, "Unknown")));
+                        }
                         break;
 
                     case (byte)0x03:
                         strEIR.append("[0x03] Complete 16-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        for (int u=0; u<fieldLength-1; u+=2) {
+                            uuid16 = (scanDevice[i].scanRecord[p+2+u] & 0xFF) | ((scanDevice[i].scanRecord[p+3+u] & 0xFF) << 8);
+                            String strUUID = String.format("0000%04x-0000-1000-8000-00805f9b34fb",uuid16);
+                            Log.d(TAG, String.format("Complete 16-bit UUIDs = %s",strUUID));
+                            strEIR.append(String.format("     0x%04X: %s\n", uuid16, GattAttributes.lookup(strUUID, "Unknown")));
+                        }
                         break;
 
                     case (byte)0x04:
@@ -424,7 +435,13 @@ public class DeviceScanActivity extends ListActivity {
                         break;
 
                     case (byte)0x16:
-                        strEIR.append("[0x16] Service data : 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-2)).append("\n");
+                        strEIR.append("[0x16] Service data : 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        break;
+
+                    case (byte)0x19:
+                        int  appearanceID = (scanDevice[i].scanRecord[p+2]&0xFF) | ((scanDevice[i].scanRecord[p+3]&0xFF)<<8);
+                        strEIR.append("[0x19] Appearance : 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append(String.format("     %s\n",DeviceAppearances.lookup(appearanceID,"Unknown")));
                         break;
 
                     case (byte)0xff:
@@ -515,7 +532,6 @@ public class DeviceScanActivity extends ListActivity {
                         }
                     });
                 }
-
             };
 
     static class ViewHolder {

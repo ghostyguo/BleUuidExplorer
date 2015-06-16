@@ -1,0 +1,147 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp">
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:gravity="center_vertical">
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_toEndOf="@+id/labelRxMode"
+            android:id="@+id/NordicUartRxModeGroup">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="Rx Mode: "
+                android:id="@+id/labelRxMode"
+                android:layout_alignParentStart="false" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Debug"
+                android:id="@+id/NordicUartMode_Debug"
+                android:checked="true" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nordic"
+                android:id="@+id/NordicUartMode_Nordic" />
+
+        </RadioGroup>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Clear"
+            android:id="@+id/btnNordicUartClear"
+            android:layout_gravity="right"
+            android:enabled="true" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="320dp">
+
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/NordicUartRxDataScrollView"
+            android:background="@color/ltgray">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/NordicUartRxData" />
+        </ScrollView>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:inputType="textMultiLine"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:ems="10"
+            android:id="@+id/NordicUartTxData"
+            android:layout_gravity="top|left"
+            android:background="@color/background_floating_material_light"
+            android:editable="true"
+            android:enabled="true"
+            android:gravity="top|left" />
+    </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:clickable="true">
+
+            <RadioGroup
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/NordicUartTxFormatGroup"
+                android:layout_alignWithParentIfMissing="false"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="Tx Mode: "
+                    android:id="@+id/labelTxMode" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DEC"
+                    android:id="@+id/NordicUartTx_DEC" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HEX"
+                    android:id="@+id/NordicUartTx_HEX" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="String"
+                    android:id="@+id/NordicUartTx_String"
+                    android:checked="true" />
+
+            </RadioGroup>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right"
+            android:text="Send"
+            android:id="@+id/btnNordicUartSend"
+            android:gravity="center_vertical" />
+
+    </RelativeLayout>
+
+</LinearLayout>
