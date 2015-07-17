@@ -41,7 +41,7 @@ public class DeviceControlActivity extends Activity {
 
     private TextView mConnectionState;
     private TextView mRSSI;
-    private TextView mDataField;
+    //private TextView mDataField;
     private ExpandableListView mGattServicesList;
 
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
@@ -52,7 +52,7 @@ public class DeviceControlActivity extends Activity {
     private final String LIST_PROPERTIES = "PROPERTIES";
     private final String LIST_PERMISSION = "PERMISSION";
 
-    AlertDialog NordicSelectDialog;
+    AlertDialog CharSelectDialog;
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -98,8 +98,12 @@ public class DeviceControlActivity extends Activity {
             } else if (action.equals(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)) {
                 // Show all the supported services and characteristics on the user interface.
                 displayGattServices(mBluetoothLeService.getSupportedGattServices());
-            } else if (action.equals(BluetoothLeService.ACTION_DATA_AVAILABLE)) {
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            }
+            else if (action.equals(DeviceScanActivity.DEVICE_DATA_AVAILABLE)) {
+                mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
+                mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+                displayDeviceInfo();
+
             } else if (action.equals(BluetoothLeService.RSSI_DATA_AVAILABLE)) {
                 displayRSSI(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             }
@@ -120,7 +124,7 @@ public class DeviceControlActivity extends Activity {
 
                         Log.d(TAG, String.format("*** ExpandableListView.OnChildClickListener group=%d, child=%d, id=%d", groupPosition, childPosition, id));
 
-                        mDataField.setText("not received"); //clear
+                        //mDataField.setText("not received"); //clear
                         mTargetCharacteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
                       //  final int charaProp = characteristic.getProperties();
 
@@ -128,10 +132,10 @@ public class DeviceControlActivity extends Activity {
                         UUID uuid=mTargetCharacteristic.getUuid();
                         //final Intent intent;
 
-
-                        if (uuid.equals(GattAttributes.UUID_NORDIC_UART_RX_CHAR) ||
-                           uuid.equals(GattAttributes.UUID_NORDIC_UART_TX_CHAR)) { //Nordic Uart Service
-                            NordicSelectDialog.show();
+                        Log.d(TAG, String.format("*** IsUartCharacteristic(%s)=%d",mTargetCharacteristic.getUuid(),GattAttributes.IsUartCharacteristic(uuid)));
+                        if (GattAttributes.IsUartCharacteristic(uuid)>=0) { //Uart Service
+                            CharacteristicUartActivity.uartIndex = GattAttributes.IsUartCharacteristic(uuid);
+                            CharSelectDialog.show();
                         } else {
                             final Intent intent = new Intent(DeviceControlActivity.this, CharacteristicReadWriteActivity.class); //default
                             startActivity(intent);
@@ -174,7 +178,7 @@ public class DeviceControlActivity extends Activity {
 
     private void clearUI() {
         mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
-        mDataField.setText(R.string.no_data);
+        //mDataField.setText(R.string.no_data);
     }
 
     @Override
@@ -187,34 +191,36 @@ public class DeviceControlActivity extends Activity {
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
         // Sets up UI references.
-        ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
         mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);
         mGattServicesList.setOnChildClickListener(servicesListClickListner);
         mConnectionState = (TextView) findViewById(R.id.connection_state);
-        mDataField = (TextView) findViewById(R.id.data_value);
+        //mDataField = (TextView) findViewById(R.id.data_value);
         mRSSI =  (TextView) findViewById(R.id.control_RSSI);
 
-        getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
         //intent = new Intent(DeviceControlActivity.this, NordicUarActivityt.class);
-        final String[] items = {"Generic IO","Nordic UART"};
+        final String[] items = {"Read/Write","UART"};
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select I/O Control").setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) { //Generic IO
-                    final Intent intent = new Intent(DeviceControlActivity.this, CharacteristicReadWriteActivity.class); //Generic
-                    startActivity(intent);
-                } else //
-                {
-                    final Intent intent = new Intent(DeviceControlActivity.this, NordicUartActivity.class); //Nordic
-                    startActivity(intent);
+                CharSelectDialog.hide();
+                final Intent intent;
+                switch (which) {
+                    case 0: //Generic IO
+                        intent = new Intent(DeviceControlActivity.this, CharacteristicReadWriteActivity.class); //Generic
+                        startActivity(intent);
+                        break;
+                    case 1: //Uart
+                        intent = new Intent(DeviceControlActivity.this, CharacteristicUartActivity.class); //Uart
+                        startActivity(intent);
+                        break;
                 }
             }
         });
-        NordicSelectDialog = builder.create();
+        CharSelectDialog = builder.create();
     }
 
     @Override
@@ -225,6 +231,7 @@ public class DeviceControlActivity extends Activity {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }
+        displayDeviceInfo();
     }
 
     @Override
@@ -278,11 +285,13 @@ public class DeviceControlActivity extends Activity {
         });
     }
 
-    private void displayData(String data) {
-        if (data != null) {
-            mDataField.setText(data);
+    private void displayDeviceInfo() {
+        if (mDeviceAddress != null) {
+            ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
+            getActionBar().setTitle(mDeviceName);
         } else {
-            mDataField.setText(R.string.no_data);
+            ((TextView) findViewById(R.id.device_address)).setText(R.string.no_data);
+            getActionBar().setTitle(R.string.no_data);
         }
     }
 
@@ -416,8 +425,8 @@ public class DeviceControlActivity extends Activity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-       // intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE); //removed by ghosty
-        intentFilter.addAction(BluetoothLeService.RSSI_DATA_AVAILABLE); //ghosty
+        intentFilter.addAction(DeviceScanActivity.DEVICE_DATA_AVAILABLE); //added by ghosty
+        intentFilter.addAction(BluetoothLeService.RSSI_DATA_AVAILABLE); //added by ghosty
         return intentFilter;
     }
 }

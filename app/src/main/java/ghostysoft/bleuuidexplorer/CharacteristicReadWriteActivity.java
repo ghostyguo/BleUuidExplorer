@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -24,7 +23,7 @@ public class CharacteristicReadWriteActivity extends Activity {
 
     private final static String TAG = CharacteristicReadWriteActivity.class.getSimpleName();
 
-    private Button mButtonRead, mButtonNotify, mButtonIndicate, mButtonWrite;
+    private Button mButtonRead, mButtonNotify, mButtonIndicate, mButtonWrite, mButtonClear;
     private TextView mRxData, mWriteData, mRSSI;
     private boolean mNotify, mIndicate;
     private RadioGroup mReadFormatGroup, mWriteFormatGroup;
@@ -37,16 +36,17 @@ public class CharacteristicReadWriteActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.characteristic_read_write);
 
-        mRxData =  (TextView) findViewById(R.id.characteristic_RxData);
-        mWriteData =  (TextView) findViewById(R.id.characteristic_WriteData);
-        mRSSI =  (TextView) findViewById(R.id.characteristic_RSSI);
-        mReadFormatGroup = (RadioGroup) findViewById(R.id.characteristic_ReadGorup);
-        mWriteFormatGroup = (RadioGroup) findViewById(R.id.characteristic_WriteGorup);
+        mRxData =  (TextView) findViewById(R.id.CharRW_ReadData);
+        mWriteData =  (TextView) findViewById(R.id.CharRW_WriteData);
+        mRSSI =  (TextView) findViewById(R.id.CharRW_RSSI);
+        mReadFormatGroup = (RadioGroup) findViewById(R.id.CharRW_ReadFormatGorup);
+        mWriteFormatGroup = (RadioGroup) findViewById(R.id.CharRW_WriteFormatGorup);
 
-        mButtonRead = (Button)findViewById(R.id.characteristic_btnRead);
-        mButtonIndicate = (Button)findViewById(R.id.characteristic_btnIndicate);
-        mButtonNotify = (Button)findViewById(R.id.characteristic_btnNotify);
-        mButtonWrite = (Button)findViewById(R.id.characteristic_btnWrite);
+        mButtonRead = (Button)findViewById(R.id.CharRW_btnRead);
+        mButtonIndicate = (Button)findViewById(R.id.CharRW_btnIndicate);
+        mButtonNotify = (Button)findViewById(R.id.CharRW_btnNotify);
+        mButtonWrite = (Button)findViewById(R.id.CharRW_btnWrite);
+        mButtonClear = (Button)findViewById(R.id.CharRW_btnClear);
         mNotify = false;
 
         mReadFormatGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -155,18 +155,40 @@ public class CharacteristicReadWriteActivity extends Activity {
 
         if (((charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) ||
             (charaProp & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0) {
+            mWriteData.setEnabled(true);
             mButtonWrite.setEnabled(true);
             mButtonWrite.setOnClickListener(new Button.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(CharacteristicReadWriteActivity.this, "Write", Toast.LENGTH_SHORT).show();
-                    EditText editText = (EditText) findViewById(R.id.characteristic_WriteData);
-                    String message = editText.getText().toString();
+                    String message =mWriteData.getText().toString();
                     byte[] value;
                     try {
+                        switch (mWriteFormatGroup.getCheckedRadioButtonId()) {
+                            case R.id.CharRW_WriteFormatString:
+                                Log.d(TAG,"CharRW_WriteFormatString");
+                                value = message.getBytes("UTF-8");
+                                break;
+                            case R.id.CharRW_WriteFormatDEC:
+                                Log.d(TAG,"CharRW_WriteFormatDEC");
+                                value = new DataManager().decStringToByteArray(message);
+                                break;
+                            case R.id.CharRW_WriteFormatHEX:
+                                Log.d(TAG,"CharRW_WriteFormatHEX");
+                                value =  new DataManager().hexStringToByteArray(message);
+                                break;
+                            default:
+                                value = null;
+                                Log.d(TAG, "Write Format ERROR");
+                        }
                         //send data to service
-                        value = message.getBytes("UTF-8");
-                        DeviceControlActivity.mBluetoothLeService.writeRXCharacteristic(value);
+                        if (value!=null) {
+                            DeviceControlActivity.mBluetoothLeService.writeCharacteristic(DeviceControlActivity.mTargetCharacteristic, value);
+                            Toast.makeText(getApplication(), "Write ("+value.length+")", Toast.LENGTH_SHORT).show();
+
+                        }
+                        else {
+                            Toast.makeText(getApplication(),"write data null",Toast.LENGTH_SHORT).show();
+                        }
                        // editText.setText("");
                     } catch (UnsupportedEncodingException e) {
                         // TODO Auto-generated catch block
@@ -174,8 +196,18 @@ public class CharacteristicReadWriteActivity extends Activity {
                     }
                 }
             });
+
+            mButtonClear.setEnabled(true);
+            mButtonClear.setOnClickListener(new Button.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    mWriteData.setText("");
+                }
+            });
         } else {
+            mWriteData.setEnabled(false);
             mButtonWrite.setEnabled(false);
+            mButtonClear.setEnabled(false);
         } // WRITE
     }
 
@@ -187,6 +219,13 @@ public class CharacteristicReadWriteActivity extends Activity {
             final boolean result = DeviceControlActivity.mBluetoothLeService.connect(DeviceControlActivity.mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
         }
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
     @Override
@@ -205,9 +244,42 @@ public class CharacteristicReadWriteActivity extends Activity {
         int id = item.getItemId();
         Log.d(TAG, String.format("*** onOptionsItemSelected %d",id));
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_throughput_test100:
+                Log.d(TAG, "menu_throughput_test selected");
+                mWriteData.setText(DataManager.pattern100);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test200:
+                Log.d(TAG, "menu_throughput_test selected");
+                mWriteData.setText(DataManager.pattern200);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test500:
+                Log.d(TAG, "menu_throughput_test selected");
+                mWriteData.setText(DataManager.pattern500);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test1k:
+                Log.d(TAG, "menu_throughput_test selected");
+                mWriteData.setText(DataManager.pattern1K);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test2k:
+                Log.d(TAG, "menu_throughput_test selected");
+                mWriteData.setText(DataManager.pattern2K);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test5k:
+                Log.d(TAG, "menu_throughput_test selected");
+                mWriteData.setText(DataManager.pattern5K);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
+            case R.id.menu_throughput_test10k:
+                Log.d(TAG, "menu_throughput_test selected");
+                mWriteData.setText(DataManager.pattern10K);
+                //sendMessage.setSelection(sendMessage.getText().length());
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -255,7 +327,7 @@ public class CharacteristicReadWriteActivity extends Activity {
                         strData.append(String.format("%c", byteChar));
                     break;
                 default:
-                    Log.d(TAG, "RxData format ERROR");
+                    Log.d(TAG, "Read Format ERROR");
             }
             mRxData.setText(strData);
         } else {

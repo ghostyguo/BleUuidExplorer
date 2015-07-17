@@ -8,8 +8,8 @@ android {
         applicationId "ghostysoft.bleuuidexplorer"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 9
-        versionName "0.1.8"
+        versionCode 12
+        versionName "0.1.12"
     }
     buildTypes {
         release {

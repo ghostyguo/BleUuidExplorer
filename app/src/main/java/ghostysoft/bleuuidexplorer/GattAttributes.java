@@ -4,23 +4,71 @@ package ghostysoft.bleuuidexplorer;
  * Created by ghosty on 2015/2/28.
  */
 
+import android.util.Log;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
  * This class includes a small subset of standard GATT attributes for demonstration purposes.
  */
+
 public class GattAttributes {
+    private final static String TAG = GattAttributes.class.getSimpleName();
+
     private static HashMap<String, String> attributes = new HashMap();
+    public static List<uartChar> uarts = new ArrayList<>(); // <Service,Rx,Tx>
+
     //public static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
     public static UUID UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-    public static UUID UUID_NORDIC_UART_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-    public static UUID UUID_NORDIC_UART_RX_CHAR = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-    public static UUID UUID_NORDIC_UART_TX_CHAR = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+
+    public static int IsUartService(UUID uuid) {
+        for (int i=0; i<uarts.size(); i++) {
+            if (uuid.equals(UUID.fromString(uarts.get(i).Service)))
+                return i;
+        }
+        return -1;
+    }
+
+    public static int IsUartCharacteristic(UUID uuid) {
+        for (int i=0; i<uarts.size(); i++) {
+            if (uuid.equals(UUID.fromString(uarts.get(i).RxChar)) || uuid.equals(UUID.fromString(uarts.get(i).TxChar)))
+                return i;
+        }
+        return -1;
+    }
+
+    public static int IsUartRxCharacteristic(UUID uuid) {
+        for (int i=0; i<uarts.size(); i++) {
+            if (uuid.equals(UUID.fromString(uarts.get(i).RxChar)))
+                return i;
+        }
+        return -1;
+    }
+
+    public static int IsUartTxCharacteristic(UUID uuid) {
+        for (int i=0; i<uarts.size(); i++) {
+            if (uuid.equals(UUID.fromString(uarts.get(i).TxChar)))
+                return i;
+        }
+        return -1;
+    }
 
     public static String lookup(String uuid, String defaultName) {
         String name = attributes.get(uuid);
         return name == null ? defaultName : name;
+    }
+
+    static {
+        //uarts.add(new uartChar(Service UUID, RX UUID, TX UUID ));      // RX=Write/writeNoResponse, TX=Notify/Indication
+        uarts.add(new uartChar("6e400001-b5a3-f393-e0a9-e50e24dcca9e","6e400002-b5a3-f393-e0a9-e50e24dcca9e","6e400003-b5a3-f393-e0a9-e50e24dcca9e"));      //Nordic
+        uarts.add(new uartChar("49535343-fe7d-4ae5-8fa9-9fafd205e455", "49535343-8841-43f4-a8d4-ecbe34729bb3", "49535343-1e4d-4bd9-ba61-23c647249616"));  //ISSC
+        uarts.add(new uartChar("0000fff0-0000-1000-8000-00805f9b34fb", "0000fff1-0000-1000-8000-00805f9b34fb", "0000fff2-0000-1000-8000-00805f9b34fb"));  //ISSC Trandparent
+        uarts.add(new uartChar("0000ffe0-0000-1000-8000-00805f9b34fb","0000ffe1-0000-1000-8000-00805f9b34fb","0000ffe1-0000-1000-8000-00805f9b34fb")); //HM-10
+        uarts.add(new uartChar("0000fefb-0000-1000-8000-00805f9b34fb","00000001-0000-1000-8000-008025000000","00000002-0000-1000-8000-008025000000")); //Stollmann Terminal IO
+        uarts.add(new uartChar("569a1101-b87f-490c-92cb-11ba5ea5167c","569a2001-b87f-490c-92cb-11ba5ea5167c","569a2000-b87f-490c-92cb-11ba5ea5167c")); //Laird BL600 Virtual Serial Port Service
     }
 
     static {
@@ -368,6 +416,24 @@ public class GattAttributes {
         attributes.put("0000e00c-0000-1000-8000-00805f9b34fb", "Audio Program Name Temp");
         attributes.put("0000e00d-0000-1000-8000-00805f9b34fb", "Audio Program Catogory Temp");
 
+        // Non-Standard public, ordered by UUID -------------------------------------------------------------------------------------------------------
+
+        attributes.put("0000ffe0-0000-1000-8000-00805f9b34fb", "HM-10 UART Service");
+        attributes.put("0000ffe1-0000-1000-8000-00805f9b34fb", "HM-10 UART RX/TX");
+
+        //Posture Sensing Service
+        attributes.put("0000ffe0-0000-1000-8000-00805f9b34fb", "Posture Sensing Service"); //collision with HM-10
+        attributes.put("0000ffe5-0000-1000-8000-00805f9b34fb", "Control Service");
+        attributes.put("0000ffe9-0000-1000-8000-00805f9b34fb", "UART TX");
+
+        attributes.put("0000fff0-0000-1000-8000-00805f9b34fb", "ISSC Transparent Service");
+        attributes.put("0000fff1-0000-1000-8000-00805f9b34fb", "ISSC Transparent RX");
+        attributes.put("0000fff2-0000-1000-8000-00805f9b34fb", "ISSC Transparent TX");
+
+
+        attributes.put("0000fff6-0000-1000-8000-00805f9b34fb", "RX");
+        attributes.put("0000fff7-0000-1000-8000-00805f9b34fb", "TX");
+
         //Nodric Service
         attributes.put("6e400001-b5a3-f393-e0a9-e50e24dcca9e", "Nodric UART Service");
         attributes.put("6e400002-b5a3-f393-e0a9-e50e24dcca9e", "Nodric UART Rx Char");
@@ -391,12 +457,31 @@ public class GattAttributes {
         attributes.put("b0702887-a295-a8ab-f734-031a98a512d", "RedBear B1 Output Power");
         attributes.put("b0702888-a295-a8ab-f734-031a98a512d", "RedBear B1 Firmware Version");
 
+        //ISSC dual mode
+        attributes.put("49535343-fe7d-4ae5-8fa9-9fafd205e455", "ISSC Proprietary Service");
+        attributes.put("49535343-1e4d-4bd9-ba61-23c647249616", "ISSC Transparent TX");
+        attributes.put("49535343-8841-43f4-a8d4-ecbe34729bb3", "ISSC Transparent RX");
+        attributes.put("49535343-6daa-4d02-abf6-19569aca69fe", "ISSC Update Connection Parameter");
+        attributes.put("49535343-6daa-4d02-abf6-19569aca69fe", "ISSC Update Connection Parameter");
+        attributes.put("49535343-aca3-481c-91ec-d85e28a60318", "ISSC Air Patch");
 
+        //Stollmann Terminal IO
+        attributes.put("0000fefb-0000-1000-8000-00805f9b34fb", "Stollmann Terminal IO Service");
+        attributes.put("00000001-0000-1000-8000-008025000000", "Stollmann UART RX");
+        attributes.put("00000002-0000-1000-8000-008025000000", "Stollmann UART TX");
+        attributes.put("00000004-0000-1000-8000-008025000000", "Stollmann Credits UART RX");
 
-        //iPad
-       // attributes.put("d829e00c-e0b1-3391-8691-250bbab9a117", "iPad");
-       // attributes.put("a3df3df0-9578-7363-2d95-307671bf9983", "iPad");
-       // attributes.put("d0611e78-bbb4-4591-a5f8-487910ae4366", "iPad unknown Service");
-       // attributes.put("8667556c-9a37-4c91-84ed-54ee27d90049", "iPad unknown characteristic");
+        //Apple Notification Center Service
+        attributes.put("7905f431-b5ce-4e99-a40f-4b1e122d00d0", "Apple Notification Center Service");
+        attributes.put("9fbf120d-6301-42d9-8c58-25e699a21dbd", "Notification Source");
+        attributes.put("69d1d8f3-45e1-49a8-9821-9bbdfdaad9d9", "Control Point UUID");
+        attributes.put("22eac6e9-24d6-4bb5-be44-b36ace7c7bfb", "Data Source");
+
+        //Laird BL600 Virtual Serial Port Service
+        attributes.put("569a1101-b87f-490c-92cb-11ba5ea5167c", "BL600 vSP Service");
+        attributes.put("569a2000-b87f-490c-92cb-11ba5ea5167c", "TX FIFO");
+        attributes.put("569a2001-b87f-490c-92cb-11ba5ea5167c", "RX FIFO");
+        attributes.put("569a2002-b87f-490c-92cb-11ba5ea5167c", "Modem Out");
+        attributes.put("569a2003-b87f-490c-92cb-11ba5ea5167c", "Modem In");
     }
 }

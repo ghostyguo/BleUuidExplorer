@@ -2,6 +2,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="ghostysoft.bleuuidexplorer.CharacteristicReadWriteActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:title="@string/menu_hot_keys_throughput" >
+        <menu>
+            <item android:id="@+id/menu_throughput_test20"  android:title="Throughput 20 test"/>
+            <item android:id="@+id/menu_throughput_test50"  android:title="Throughput 50 test"/>
+            <item android:id="@+id/menu_throughput_test100"  android:title="Throughput 100 test"/>
+            <item android:id="@+id/menu_throughput_test200"  android:title="Throughput 200 test"/>
+            <item android:id="@+id/menu_throughput_test500"  android:title="Throughput 500 test"/>
+            <item android:id="@+id/menu_throughput_test1k"  android:title="Throughput 1k test"/>
+            <item android:id="@+id/menu_throughput_test2k"  android:title="Throughput 2k test"/>
+            <item android:id="@+id/menu_throughput_test5k"  android:title="Throughput 5k test"/>
+            <item android:id="@+id/menu_throughput_test10k"  android:title="Throughput 10k test"/>
+        </menu>
+    </item>
 </menu>

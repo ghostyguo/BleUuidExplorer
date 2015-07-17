@@ -1,15 +1,20 @@
 package ghostysoft.bleuuidexplorer;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,17 +34,22 @@ import java.util.ArrayList;
 public class DeviceScanActivity extends ListActivity {
     private final static String TAG = DeviceScanActivity.class.getSimpleName();
 
+    public final static String DEVICE_DATA_AVAILABLE =
+            "ghostysoft.bleuuidexplorer.DEVICE_DATA_AVAILABLE";
+
     // [ghosty
     class deviceInfo {
         public String Name;
         public String Address;
         public Integer RSSI;
+        public int Type,BondState;
         public byte[] scanRecord;
     }
-
+    private final static int MaxDeviceCount = 500; //Support Max 500 Bluetooth devices
     // ghosty]
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothDevice mBluetoothDevice;
     private boolean mScanning;
     private Handler mHandler;
 
@@ -48,7 +58,7 @@ public class DeviceScanActivity extends ListActivity {
     private static final long SCAN_PERIOD = 5000;
 
     //ghosty
-    private deviceInfo[] scanDevice=new deviceInfo[100]; //Support Max 100 Bluetooth devices
+    private deviceInfo[] scanDevice=new deviceInfo[MaxDeviceCount];
     private Integer scanIndex=0;
 
     @Override
@@ -67,8 +77,7 @@ public class DeviceScanActivity extends ListActivity {
 
         // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
         // BluetoothAdapter through BluetoothManager.
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        final BluetoothManager bluetoothManager =  (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
         // Checks if Bluetooth is supported on the device.
@@ -129,6 +138,8 @@ public class DeviceScanActivity extends ListActivity {
         // Initializes list view adapter.
         mLeDeviceListAdapter = new LeDeviceListAdapter();
         setListAdapter(mLeDeviceListAdapter);
+        Log.d(TAG, "LeDeviceListAdapter Created");
+
         scanLeDevice(true);
     }
 
@@ -154,15 +165,24 @@ public class DeviceScanActivity extends ListActivity {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         Log.d(TAG, String.format("*** onListItemClick() position %d",position));
-        final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-        if (device == null) return;
-        final Intent intent = new Intent(this, DeviceControlActivity.class);
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+
+        mBluetoothDevice = mLeDeviceListAdapter.getDevice(position);
+        if (mBluetoothDevice == null) return;
+        //final Intent intent = new Intent(this, DeviceControlActivity.class);
+        //intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+        //intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
+
+        BluetoothLeService.IsDualMode = (scanDevice[position].Type == BluetoothDevice.DEVICE_TYPE_DUAL) ? true : false; //Select Single or Dual Mode
+        if (BluetoothLeService.IsDualMode) {
+            Toast.makeText(getApplication(), "Dual Mode", Toast.LENGTH_LONG).show();
+        }
+        final Intent intent = new Intent(DeviceScanActivity.this, DeviceControlActivity.class);
+        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, mBluetoothDevice.getName());
+        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, mBluetoothDevice.getAddress());
         startActivity(intent);
     }
 
@@ -186,30 +206,6 @@ public class DeviceScanActivity extends ListActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
         invalidateOptionsMenu();
-    }
-
-    StringBuilder dumpHex(byte data[]) {
-        Log.d(TAG, "dumpHex()");
-        final StringBuilder strResult = new StringBuilder();
-        for (int i=0; i<data.length; i++)
-            strResult.append(String.format("%02X ", data[i]));
-        return strResult;
-    }
-
-    StringBuilder dumpHex(byte data[], int length) {
-        Log.d(TAG, String.format("dumpHex() length=%d",length));
-        final StringBuilder strResult = new StringBuilder();
-        for (int i=0; i<length; i++)
-            strResult.append(String.format("%02X ", data[i]));
-        return strResult;
-    }
-
-    StringBuilder dumpHex(byte data[], int start, int length) {
-        Log.d(TAG, String.format("dumpHex() start=%d, length=%d",start,length));
-        final StringBuilder strResult = new StringBuilder();
-        for (int i=start; i<start+length; i++)
-            strResult.append(String.format("%02X ", data[i]));
-        return strResult;
     }
 
     // Adapter for holding devices found through scanning.
@@ -270,6 +266,8 @@ public class DeviceScanActivity extends ListActivity {
                 viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
                 viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
                 viewHolder.deviceRSSI = (TextView) view.findViewById(R.id.scan_RSSI);
+                viewHolder.deviceType = (TextView) view.findViewById(R.id.device_Type);
+                viewHolder.deviceBoundState = (TextView) view.findViewById(R.id.device_BoundState);
                 viewHolder.deviceScanResult = (TextView) view.findViewById(R.id.scan_result);
                 viewHolder.listEIRs = (TextView) view.findViewById(R.id.list_EIRs);
                 view.setTag(viewHolder);
@@ -293,10 +291,40 @@ public class DeviceScanActivity extends ListActivity {
             viewHolder.deviceAddress.setText(scanDevice[i].Address);
             viewHolder.deviceRSSI.setText(String.format("%d dBm",scanDevice[i].RSSI));
 
+            switch (scanDevice[i].Type) {
+                case BluetoothDevice.DEVICE_TYPE_CLASSIC:
+                    viewHolder.deviceType.setText("Classic");
+                    break;
+                case BluetoothDevice.DEVICE_TYPE_LE:
+                    viewHolder.deviceType.setText("BLE");
+                    break;
+                case BluetoothDevice.DEVICE_TYPE_DUAL:
+                    viewHolder.deviceType.setText("Dual");
+                    break;
+                case BluetoothDevice.DEVICE_TYPE_UNKNOWN:
+                    viewHolder.deviceType.setText("Ukonown");
+                    break;
+                default:
+                    viewHolder.deviceType.setText("Not defined");
+                    break;
+            }
+
+            switch (scanDevice[i].BondState) {
+                case BluetoothDevice.BOND_NONE:
+                    viewHolder.deviceBoundState.setText("BondNone");
+                    break;
+                case BluetoothDevice.BOND_BONDED:
+                    viewHolder.deviceBoundState.setText("Bonded");
+                    break;
+                case BluetoothDevice.BOND_BONDING:
+                    viewHolder.deviceBoundState.setText("Bonding");
+                    break;
+            }
+
             // Show the scan result
-            final StringBuilder strScanResult = new StringBuilder(dumpHex(scanDevice[i].scanRecord));
-            Log.d(TAG, String.format("scan result %s", strScanResult.toString()));
-            viewHolder.deviceScanResult.setText(strScanResult);
+             final StringBuilder strScanResult = new DataManager().byteArrayToHex(scanDevice[i].scanRecord);
+             Log.d(TAG, String.format("scan result %s", strScanResult.toString()));
+             viewHolder.deviceScanResult.setText(strScanResult);
 
             // Explain the scan  result, see BLUETOOTH SPECIFICATION Version 4.0 [Vol 3]
             // Part C. Generic Access Profile. Section 18 -  APPENDIX C
@@ -339,7 +367,7 @@ public class DeviceScanActivity extends ListActivity {
                         break;
 
                     case (byte)0x02:
-                        strEIR.append("[0x02] More 16-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x02] More 16-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         for (int u=0; u<fieldLength-1; u+=2) {
                             uuid16 = (scanDevice[i].scanRecord[p+2+u] & 0xFF) | ((scanDevice[i].scanRecord[p+3+u] & 0xFF) << 8);
                             String strUUID = String.format("0000%04x-0000-1000-8000-00805f9b34fb",uuid16);
@@ -349,7 +377,7 @@ public class DeviceScanActivity extends ListActivity {
                         break;
 
                     case (byte)0x03:
-                        strEIR.append("[0x03] Complete 16-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x03] Complete 16-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         for (int u=0; u<fieldLength-1; u+=2) {
                             uuid16 = (scanDevice[i].scanRecord[p+2+u] & 0xFF) | ((scanDevice[i].scanRecord[p+3+u] & 0xFF) << 8);
                             String strUUID = String.format("0000%04x-0000-1000-8000-00805f9b34fb",uuid16);
@@ -359,48 +387,48 @@ public class DeviceScanActivity extends ListActivity {
                         break;
 
                     case (byte)0x04:
-                        strEIR.append("[0x04] More 32-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x04] More 32-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x05:
-                        strEIR.append("[0x05] Complete 32-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x05] Complete 32-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x06:
-                        strEIR.append("[0x06] More 128-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x06] More 128-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x07:
-                        strEIR.append("[0x07] Complete 128-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x07] Complete 128-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x08:
-                        strEIR.append("[0x08] Shortened local name: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x08] Shortened local name: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x09:
-                        strEIR.append("[0x09] Complete local name: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x09] Complete local name: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x0A:
                         byte txPower = scanDevice[i].scanRecord[p+2];
-                        strEIR.append("[0x0A] Tx Power Level: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x0A] Tx Power Level: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x0D:
-                        strEIR.append("[0x0D] Device Class: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x0D] Device Class: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x0E:
-                        strEIR.append("[0x0E] Simple Pairing Hash: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x0E] Simple Pairing Hash: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x0F:
-                        strEIR.append("[0x0F] Simple Pairin Randomizer: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1));
+                        strEIR.append("[0x0F] Simple Pairin Randomizer: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1));
                         break;
 
                     case (byte)0x10:
-                        strEIR.append("[0x10] Security Manager TK Value: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x10] Security Manager TK Value: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x11: //Security Flags
@@ -423,29 +451,29 @@ public class DeviceScanActivity extends ListActivity {
                         break;
 
                     case (byte)0x12:
-                        strEIR.append("[0x12] Slave Connection Interval Range: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x12] Slave Connection Interval Range: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case(byte)0x14:
-                        strEIR.append("[0x14] Service solication 16-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x14] Service solication 16-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x15:
-                        strEIR.append("[0x15] Service solication 128-bit UUIDs: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x15] Service solication 128-bit UUIDs: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x16:
-                        strEIR.append("[0x16] Service data : 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x16] Service data : 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         break;
 
                     case (byte)0x19:
                         int  appearanceID = (scanDevice[i].scanRecord[p+2]&0xFF) | ((scanDevice[i].scanRecord[p+3]&0xFF)<<8);
-                        strEIR.append("[0x19] Appearance : 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0x19] Appearance : 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         strEIR.append(String.format("     %s\n",DeviceAppearances.lookup(appearanceID,"Unknown")));
                         break;
 
                     case (byte)0xff:
-                        strEIR.append("[0xFF] Manufacturer Specific Data: 0x").append(dumpHex(scanDevice[i].scanRecord,p+2,fieldLength-1)).append("\n");
+                        strEIR.append("[0xFF] Manufacturer Specific Data: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 2, fieldLength - 1)).append("\n");
                         int adCompanyID = (scanDevice[i].scanRecord[p+2]&0xFF) | ((scanDevice[i].scanRecord[p+3]&0xFF)<<8);
                         strEIR.append(String.format("     Company ID: 0x%04X (%s)\n", adCompanyID, CompanyIDs.lookup(adCompanyID,"Unknown")));
                         if (fieldLength>3) { //more data
@@ -462,8 +490,8 @@ public class DeviceScanActivity extends ListActivity {
                                               default: strEIR.append("     [Beacon]\n "); break;
                                         }
 
-                                        strEIR.append("          UUID: 0x").append(dumpHex(scanDevice[i].scanRecord, p + 6, 8)).append("\n"); //分2行列印
-                                        strEIR.append("                        ").append(dumpHex(scanDevice[i].scanRecord, p + 6+8, 8)).append("\n");
+                                        strEIR.append("          UUID: 0x").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 6, 8)).append("\n"); //分2行列印
+                                        strEIR.append("                        ").append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p + 6 + 8, 8)).append("\n");
                                         int adMajor = ((scanDevice[i].scanRecord[p + 22]&0xFF)<<8 | (scanDevice[i].scanRecord[p + 23]&0xFF));
                                         int adMinor = ((scanDevice[i].scanRecord[p + 24]&0xFF)<<8 | (scanDevice[i].scanRecord[p + 25]&0xFF));
                                         int adCalcPower = scanDevice[i].scanRecord[p + 26];
@@ -482,7 +510,7 @@ public class DeviceScanActivity extends ListActivity {
                         break;
 
                     default:
-                        strEIR.append(String.format("[0x%02X] Unrecognized EIR type: 0x",fieldType)).append(dumpHex(scanDevice[i].scanRecord,p,fieldLength-1)).append("\n");
+                        strEIR.append(String.format("[0x%02X] Unrecognized EIR type: 0x",fieldType)).append(new DataManager().byteArrayToHex(scanDevice[i].scanRecord, p, fieldLength - 1)).append("\n");
                         break;
                 } //switch (fieldType)
                 p += (fieldLength+1);
@@ -512,6 +540,8 @@ public class DeviceScanActivity extends ListActivity {
                     }
                     scanDevice[scanIndex].Address = device.getAddress();
                     scanDevice[scanIndex].RSSI = rssi;
+                    scanDevice[scanIndex].Type = device.getType();
+                    scanDevice[scanIndex].BondState = device.getBondState();
 
                     // Search for actual packet length
                     int packetLength=0;
@@ -538,6 +568,8 @@ public class DeviceScanActivity extends ListActivity {
         TextView deviceName;
         TextView deviceAddress;
         TextView deviceRSSI;
+        TextView deviceType;
+        TextView deviceBoundState;
         TextView deviceScanResult;        
         TextView listEIRs;
     }

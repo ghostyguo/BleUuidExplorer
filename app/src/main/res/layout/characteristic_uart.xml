@@ -15,8 +15,7 @@
             android:layout_height="fill_parent"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_toEndOf="@+id/labelRxMode"
-            android:id="@+id/NordicUartRxModeGroup">
+            android:id="@+id/UartRxFormatGroup">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -29,15 +28,32 @@
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Debug"
-                android:id="@+id/NordicUartMode_Debug"
+                android:text="DEC"
+                android:id="@+id/UartRxFormat_DEC"
+                android:layout_alignParentBottom="true"
+                android:layout_toEndOf="@+id/UartRxModeGroup"
+                android:enabled="true"
+                android:checked="false" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HEX"
+                android:id="@+id/UartRxFormat_HEX"
+                android:layout_above="@+id/UartFormatRx_String"
+                android:layout_toRightOf="@+id/UartRxModeGroup"
+                android:enabled="true"
                 android:checked="true" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nordic"
-                android:id="@+id/NordicUartMode_Nordic" />
+                android:text="String"
+                android:id="@+id/UartRxFormat_String"
+                android:checked="true"
+                android:layout_above="@+id/UartFormatRx_String"
+                android:layout_toRightOf="@+id/UartRxModeGroup"
+                android:enabled="true" />
 
         </RadioGroup>
 
@@ -46,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:text="Clear"
-            android:id="@+id/btnNordicUartClear"
+            android:id="@+id/btnUartClear"
             android:layout_gravity="right"
             android:enabled="true" />
 
@@ -60,50 +76,49 @@
         <ScrollView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/NordicUartRxDataScrollView"
-            android:background="@color/ltgray">
+            android:id="@+id/UartRxDataScrollView"
+            android:background="@color/ltgray"
+            android:layout_alignParentTop="false"
+            android:layout_alignParentLeft="false">
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/NordicUartRxData" />
+                android:id="@+id/UartRxData"
+                android:enabled="true" />
         </ScrollView>
 
     </RelativeLayout>
 
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:inputType="textMultiLine"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:ems="10"
+        android:id="@+id/UartTxData"
+        android:layout_gravity="top|left"
+        android:background="@color/background_floating_material_light"
+        android:editable="true"
+        android:enabled="true" />
+
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp">
-
-        <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:inputType="textMultiLine"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:ems="10"
-            android:id="@+id/NordicUartTxData"
-            android:layout_gravity="top|left"
-            android:background="@color/background_floating_material_light"
-            android:editable="true"
-            android:enabled="true"
-            android:gravity="top|left" />
-    </RelativeLayout>
-
-        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:gravity="center_vertical"
-            android:clickable="true">
+            android:clickable="false">
 
             <RadioGroup
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_alignParentBottom="true"
+                android:layout_alignParentBottom="false"
                 android:layout_alignParentLeft="true"
-                android:id="@+id/NordicUartTxFormatGroup"
+                android:id="@+id/UartTxFormatGroup"
                 android:layout_alignWithParentIfMissing="false"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_toStartOf="@+id/btnUartSend">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -116,20 +131,23 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="DEC"
-                    android:id="@+id/NordicUartTx_DEC" />
+                    android:id="@+id/UartTxFormat_DEC"
+                    android:enabled="true" />
 
                 <RadioButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="HEX"
-                    android:id="@+id/NordicUartTx_HEX" />
+                    android:id="@+id/UartTxFormat_HEX"
+                    android:enabled="true" />
 
                 <RadioButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="String"
-                    android:id="@+id/NordicUartTx_String"
-                    android:checked="true" />
+                    android:id="@+id/UartTxFormat_String"
+                    android:checked="true"
+                    android:enabled="true" />
 
             </RadioGroup>
 
@@ -139,8 +157,7 @@
             android:layout_alignParentRight="true"
             android:layout_gravity="right"
             android:text="Send"
-            android:id="@+id/btnNordicUartSend"
-            android:gravity="center_vertical" />
+            android:id="@+id/btnUartSend" />
 
     </RelativeLayout>
 

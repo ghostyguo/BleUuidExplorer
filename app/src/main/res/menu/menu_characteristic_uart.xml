@@ -1,0 +1,58 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="ghostysoft.bleuuidexplorer.CharacteristicUartActivity">
+
+    <!--
+    <item
+        android:title="@string/menu_hot_keys_nano51822">
+        <menu>
+            <item android:id="@+id/menu_hot_keys101"  android:title="AT&amp;INTERVAL="/>
+            <item android:id="@+id/menu_hot_keys102"  android:title="AT&amp;INTERVAL?#"/>
+            <item android:id="@+id/menu_hot_keys103"  android:title="AT&amp;TXPOWER=#"/>
+            <item android:id="@+id/menu_hot_keys104"  android:title="AT&amp;TXPOWER?"/>
+            <item android:id="@+id/menu_hot_keys105"  android:title="AT&amp;COID="/>
+            <item android:id="@+id/menu_hot_keys106"  android:title="AT&amp;COID?#"/>
+            <item android:id="@+id/menu_hot_keys107"  android:title="AT&amp;MAJOR="/>
+            <item android:id="@+id/menu_hot_keys108"  android:title="AT&amp;MAJOR?#"/>
+            <item android:id="@+id/menu_hot_keys109"  android:title="AT&amp;MINOR="/>
+            <item android:id="@+id/menu_hot_keys110"  android:title="AT&amp;MINOR?#"/>
+            <item android:id="@+id/menu_hot_keys111"  android:title="AT&amp;RSSI="/>
+            <item android:id="@+id/menu_hot_keys112"  android:title="AT&amp;RSSI?#"/>
+            <item android:id="@+id/menu_hot_keys113"  android:title="AT+SAVE#"/>
+            <item android:id="@+id/menu_hot_keys114"  android:title="AT+RESET#"/>
+            <item android:id="@+id/menu_hot_keys115"  android:title="AT+DFU#"/>
+        </menu>
+    </item>
+    <item
+        android:title="@string/menu_hot_keys_koso">
+        <menu>
+            <item android:id="@+id/menu_hot_keys201"  android:title="AT&amp;RESET#"/>
+            <item android:id="@+id/menu_hot_keys202"  android:title="AT&amp;CONMIN="/>
+            <item android:id="@+id/menu_hot_keys203"  android:title="AT&amp;CONMIN?#"/>
+            <item android:id="@+id/menu_hot_keys204"  android:title="AT&amp;CONMAX="/>
+            <item android:id="@+id/menu_hot_keys205"  android:title="AT&amp;CONMAX?#"/>
+            <item android:id="@+id/menu_hot_keys206"  android:title="AT&amp;RSSI?#"/>
+            <item android:id="@+id/menu_hot_keys207"  android:title="AT&amp;RUNDELAY="/>
+            <item android:id="@+id/menu_hot_keys208"  android:title="AT&amp;RUNDELAY?#"/>
+            <item android:id="@+id/menu_hot_keys209"  android:title="AT&amp;RUN#"/>
+            <item android:id="@+id/menu_hot_keys210"  android:title="AT&amp;STOP#"/>
+            <item android:id="@+id/menu_hot_keys211"  android:title="AT&amp;TEST#"/>
+        </menu>
+    </item>
+    -->
+    <item
+        android:title="@string/menu_hot_keys_throughput">
+        <menu>
+            <item android:id="@+id/menu_throughput_test20"  android:title="Throughput 20 test"/>
+            <item android:id="@+id/menu_throughput_test50"  android:title="Throughput 50 test"/>
+            <item android:id="@+id/menu_throughput_test100"  android:title="Throughput 100 test"/>
+            <item android:id="@+id/menu_throughput_test200"  android:title="Throughput 200 test"/>
+            <item android:id="@+id/menu_throughput_test500"  android:title="Throughput 500 test"/>
+            <item android:id="@+id/menu_throughput_test1k"  android:title="Throughput 1k test"/>
+            <item android:id="@+id/menu_throughput_test2k"  android:title="Throughput 2k test"/>
+            <item android:id="@+id/menu_throughput_test5k"  android:title="Throughput 5k test"/>
+            <item android:id="@+id/menu_throughput_test10k"  android:title="Throughput 10k test"/>
+        </menu>
+    </item>
+</menu>

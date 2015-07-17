@@ -7,7 +7,10 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:id="@+id/CharRW_RSSI_Layout"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -19,136 +22,189 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No Data"
-            android:id="@+id/characteristic_RSSI" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Read"
-            android:id="@+id/characteristic_btnRead" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Notify"
-            android:id="@+id/characteristic_btnNotify" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Indicate"
-            android:id="@+id/characteristic_btnIndicate" />
+            android:id="@+id/CharRW_RSSI" />
 
     </LinearLayout>
 
+
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/CharRW_Read_Layout"
+        android:background="@color/background_material_light">
 
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:id="@+id/characteristic_ReadGorup">
+            android:id="@+id/CharRW_ReadFormatGorup"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Read Format:"
+                android:id="@+id/textView5" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="DEC"
                 android:id="@+id/characteristic_ReadFormatDEC"
-                android:checked="true" />
+                android:checked="true"
+                android:enabled="true" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HEX"
-                android:id="@+id/characteristic_ReadFormatHEX" />
+                android:id="@+id/characteristic_ReadFormatHEX"
+                android:enabled="true" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="String"
-                android:id="@+id/characteristic_ReadFormatSTRING" />
+                android:id="@+id/characteristic_ReadFormatSTRING"
+                android:enabled="true" />
 
         </RadioGroup>
-    </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/CharRW_ReadTypeLayout"
+            android:layout_marginTop="10dp">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center_vertical|center_horizontal">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Read"
+                    android:id="@+id/CharRW_btnRead" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notify"
+                    android:id="@+id/CharRW_btnNotify" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Indicate"
+                    android:id="@+id/CharRW_btnIndicate" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="60dp"
-            android:text="Rx"
-            android:id="@+id/characteristic_RxData"
+            android:id="@+id/CharRW_ReadData"
             android:layout_gravity="center_horizontal"
-            android:background="@color/background_material_light" />
+            android:background="@color/ltgray"
+            android:layout_marginTop="10dp" />
+
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Write"
-            android:id="@+id/characteristic_btnWrite" />
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/CharRW_WriteLayout"
+        android:background="@color/background_material_light"
+        android:layout_marginTop="30dp">
 
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:id="@+id/characteristic_WriteGorup">
+            android:id="@+id/CharRW_WriteFormatGorup"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Write Format:"
+                android:id="@+id/textView7" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="DEC"
-                android:id="@+id/characteristic_WriteFormatDEC"
-                android:checked="true" />
+                android:id="@+id/CharRW_WriteFormatDEC"
+                android:checked="true"
+                android:enabled="true" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HEX"
-                android:id="@+id/characteristic_WriteFormatHEX" />
+                android:id="@+id/CharRW_WriteFormatHEX"
+                android:enabled="true" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="String"
-                android:id="@+id/characteristic_WriteFormatSTRING" />
+                android:id="@+id/CharRW_WriteFormatString"
+                android:enabled="true" />
+
         </RadioGroup>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp">
 
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="60dp"
-            android:inputType="textMultiLine"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
             android:ems="10"
-            android:id="@+id/characteristic_WriteData"
-            android:background="@color/background_material_light"
+            android:id="@+id/CharRW_WriteData"
+            android:background="@color/ltgray"
             android:editable="true"
-            android:enabled="true" />
+            android:enabled="false" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="right"
+                android:layout_marginLeft="10dp">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear"
+                    android:id="@+id/CharRW_btnClear"
+                    android:layout_marginRight="20dp" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Write"
+                    android:id="@+id/CharRW_btnWrite"
+                    android:layout_gravity="center_horizontal" />
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

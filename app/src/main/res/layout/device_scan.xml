@@ -11,7 +11,7 @@
         android:layout_height="fill_parent">
 
         <TextView android:id="@+id/device_name"
-            android:layout_width="249dp"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:textColor="@color/blue"
             android:textSize="24dp"/>
@@ -30,10 +30,33 @@
         android:weightSum="1">
 
         <TextView android:id="@+id/device_address"
-            android:layout_width="fill_parent"
+            android:layout_width="240dp"
             android:layout_height="wrap_content"
-            android:textSize="16dp"
-            android:layout_weight="0.53" />
+            android:textSize="16dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="250dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_Type"
+                android:text="Type" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=","
+                android:id="@+id/textView2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/device_BoundState"
+                android:text="BoundState" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
