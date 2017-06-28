@@ -33,7 +33,6 @@ public class DeviceControlActivity extends Activity {
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 
-    public static BluetoothGattCharacteristic mTargetCharacteristic; //Common variable for Read/Write operation
     public static BluetoothLeService mBluetoothLeService; //Common variable for Read/Write operation
     public static String mDeviceName;   //Common variable for Read/Write operation
     public static String mDeviceAddress; //Common variable for Read/Write operation
@@ -51,6 +50,7 @@ public class DeviceControlActivity extends Activity {
     private final String LIST_UUID = "UUID";
     private final String LIST_PROPERTIES = "PROPERTIES";
     private final String LIST_PERMISSION = "PERMISSION";
+    private final String LIST_WRITETYPE = "WRITETYPE";
 
     AlertDialog CharSelectDialog;
 
@@ -91,7 +91,7 @@ public class DeviceControlActivity extends Activity {
                 invalidateOptionsMenu();
             } else if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)) {
                 mConnected = false;
-                mTargetCharacteristic = null;
+                BluetoothLeService.mTargetCharacteristic = null;
                 updateConnectionState(R.string.disconnected);
                 invalidateOptionsMenu();
                 clearUI();
@@ -125,8 +125,9 @@ public class DeviceControlActivity extends Activity {
                         Log.d(TAG, String.format("*** ExpandableListView.OnChildClickListener group=%d, child=%d, id=%d", groupPosition, childPosition, id));
 
                         //mDataField.setText("not received"); //clear
-                        mTargetCharacteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
-                      //  final int charaProp = characteristic.getProperties();
+                        BluetoothGattCharacteristic mTargetCharacteristic = mGattCharacteristics.get(groupPosition).get(childPosition);
+                        BluetoothLeService.mTargetCharacteristic = mTargetCharacteristic;
+                        //  final int charaProp = characteristic.getProperties();
 
                         Log.d(TAG, String.format("*** ExpandableListView.OnChildClickListener uuid=%s",mTargetCharacteristic.getUuid()));
                         UUID uuid=mTargetCharacteristic.getUuid();
@@ -170,7 +171,7 @@ public class DeviceControlActivity extends Activity {
                     }
                     else
                     {
-                        mTargetCharacteristic = null;
+                        BluetoothLeService.mTargetCharacteristic = null;
                     }
                     return false;
                 }
@@ -202,14 +203,14 @@ public class DeviceControlActivity extends Activity {
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
         //intent = new Intent(DeviceControlActivity.this, NordicUarActivityt.class);
-        final String[] items = {"Read/Write","UART"};
+        final String[] items = {"Read/Write","UART"}; //,"KosoMeter"};
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select I/O Control").setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 CharSelectDialog.hide();
                 final Intent intent;
                 switch (which) {
-                    case 0: //Generic IO
+                    case 0: //Geeneric IO
                         intent = new Intent(DeviceControlActivity.this, CharacteristicReadWriteActivity.class); //Generic
                         startActivity(intent);
                         break;
@@ -217,6 +218,12 @@ public class DeviceControlActivity extends Activity {
                         intent = new Intent(DeviceControlActivity.this, CharacteristicUartActivity.class); //Uart
                         startActivity(intent);
                         break;
+                    /*
+                                         case 2: //KosoMeter
+                                                intent = new Intent(DeviceControlActivity.this, KosoMeterActivity.class); //KosoMeter
+                                                startActivity(intent);
+                                                break;
+                                        */
                 }
             }
         });
@@ -400,6 +407,20 @@ public class DeviceControlActivity extends Activity {
                 }
                 currentCharaData.put(LIST_PERMISSION, strPermission);
 
+                final int charaWritetype = gattCharacteristic.getWriteType();
+                String strWritetype = String.format("[%04X]",charaWritetype);
+                if ((charaWritetype & BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)>0) {
+                    strWritetype += "WriteTypeDefault";
+                }
+                if ((charaWritetype & BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)>0) {
+                    strWritetype += "WriteTypeNoRespons";
+                }
+                if ((charaWritetype & BluetoothGattCharacteristic.WRITE_TYPE_SIGNED)>0) {
+                    strWritetype += "WriteTypeSogned";
+                }
+                currentCharaData.put(LIST_WRITETYPE, strWritetype);
+
+                // finally add to group
                 gattCharacteristicGroupData.add(currentCharaData);
             }
             mGattCharacteristics.add(charas);
@@ -414,8 +435,8 @@ public class DeviceControlActivity extends Activity {
                 new int[] {android.R.id.text1, android.R.id.text2},
                 gattCharacteristicData,
                 R.layout.characteristics_item_view,
-                new String[] {LIST_NAME, LIST_UUID, LIST_PROPERTIES, LIST_PERMISSION},
-                new int[] {R.id.characteristic_name, R.id.characteristic_uuid, R.id.characteristic_properties, R.id.characteristic_permission}
+                new String[] {LIST_NAME, LIST_UUID, LIST_PROPERTIES, LIST_PERMISSION, LIST_WRITETYPE},
+                new int[] {R.id.characteristic_name, R.id.characteristic_uuid, R.id.characteristic_properties, R.id.characteristic_permission, R.id.characteristic_writetype}
         );
         mGattServicesList.setAdapter(gattServiceAdapter);
     }

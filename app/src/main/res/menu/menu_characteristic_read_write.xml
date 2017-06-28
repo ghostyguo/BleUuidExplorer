@@ -5,8 +5,6 @@
     <item
         android:title="@string/menu_hot_keys_throughput" >
         <menu>
-            <item android:id="@+id/menu_throughput_test20"  android:title="Throughput 20 test"/>
-            <item android:id="@+id/menu_throughput_test50"  android:title="Throughput 50 test"/>
             <item android:id="@+id/menu_throughput_test100"  android:title="Throughput 100 test"/>
             <item android:id="@+id/menu_throughput_test200"  android:title="Throughput 200 test"/>
             <item android:id="@+id/menu_throughput_test500"  android:title="Throughput 500 test"/>

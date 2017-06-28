@@ -29,8 +29,7 @@ public class CharacteristicUartActivity extends Activity {
     Button btnSend, btnClear;
     RadioGroup mTxFormatGroup, mRxFormatGroup;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override  protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.characteristic_uart);
@@ -101,9 +100,7 @@ public class CharacteristicUartActivity extends Activity {
 
         DeviceControlActivity.mBluetoothLeService.enableTXNotification();
     }
-
-    @Override
-    protected void onResume() {
+    @Override  protected void onResume() {
         super.onResume();
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (DeviceControlActivity.mBluetoothLeService != null) {
@@ -111,22 +108,16 @@ public class CharacteristicUartActivity extends Activity {
             Log.d(TAG, "Connect request result=" + result);
         }
     }
-
-    @Override
-    protected void onPause() {
+    @Override  protected void onPause() {
         super.onPause();
         unregisterReceiver(mGattUpdateReceiver);
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    @Override  public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_characteristic_uart, menu);
         return true;
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    @Override  public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -165,18 +156,6 @@ public class CharacteristicUartActivity extends Activity {
                 //sendMessage.setSelection(sendMessage.getText().length());
                 return true;
                 */
-            case R.id.menu_throughput_test20:
-                Log.d(TAG, "menu_throughput_test selected");
-                mTxData.setText(DataManager.pattern20);
-                //sendMessage.setSelection(sendMessage.getText().length());
-                return true;
-
-            case R.id.menu_throughput_test50:
-                Log.d(TAG, "menu_throughput_test selected");
-                mTxData.setText(DataManager.pattern50);
-                //sendMessage.setSelection(sendMessage.getText().length());
-                return true;
-
             case R.id.menu_throughput_test100:
                 Log.d(TAG, "menu_throughput_test selected");
                 mTxData.setText(DataManager.pattern100);
@@ -216,82 +195,10 @@ public class CharacteristicUartActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-
     final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
 
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                final byte[] txValue = intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
-                Log.d(TAG,"Uart BroadcastReceiver :"+new DataManager().byteArrayToHex(txValue));
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Log.d(TAG,"Uart BroadcastReceiver : run() beign");
-                        try {
-                            Log.d(TAG, "UartRxFormat_String");
-                            final StringBuilder rxText = new StringBuilder();
-                            switch (mRxFormatGroup.getCheckedRadioButtonId()) {
-                                case R.id.UartRxFormat_String:
-                                    Log.d(TAG, "UartRxFormat_String");
-                                    rxText.append(new String(txValue, "UTF-8"));
-                                    break;
-                                case R.id.UartRxFormat_HEX: //HEX
-                                    Log.d(TAG,"UartRxFormat_HEX");
-                                    for (int i = 0; i < txValue.length; i++) {
-                                        rxText.append(String.format("%02X ", txValue[i]));
-                                    }
-                                    break;
-                                case R.id.UartRxFormat_DEC: //DEC
-                                    Log.d(TAG,"UartRxFormat_HEX");
-                                    for (int i = 0; i < txValue.length; i++) {
-                                        rxText.append(String.format("%03d ", txValue[i]));
-                                    }
-                                    break;
-                                default: Log.d(TAG,"Uart BroadcastReceiver : getCheckedRadioButtonId() invalid");
-                                    break;
-                            }
-                            Log.d(TAG,"Uart BroadcastReceiver rxText="+rxText);
-                            mRxData.setText(mRxData.getText().toString() + rxText);
-                            final ScrollView scrollview = ((ScrollView) findViewById(R.id.UartRxDataScrollView));
-                            scrollview.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    scrollview.fullScroll(ScrollView.FOCUS_DOWN);
-                                }
-                            });
-                        } catch (Exception e) {
-                            Log.d(TAG, e.toString());
-                        }
-                        Log.d(TAG,"Uart BroadcastReceiver : run() end");
-                    }
-                });
-            } else if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                //cannot happened here
-                Log.d(TAG,"ACTION_GATT_CONNECTED ???");
-                //DeviceControlActivity.mBluetoothLeService.disconnect();
-               // finish();
-            }
-            else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                Log.d(TAG,"ACTION_GATT_DISCONNECTED");
-                //DeviceControlActivity.mBluetoothLeService.disconnect();
-                finish(); //close the activity
-            }
-            else if  (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                //cannot happened here
-                Log.d(TAG,"ACTION_GATT_SERVICES_DISCOVERED ???");
-                //DeviceControlActivity.mBluetoothLeService.disconnect();
-               // finish(); //close the activity
-            }
-            else if (BluetoothLeService.DEVICE_DOES_NOT_SUPPORT_UART.equals(action)) {
-                //cannot happened here
-                Log.d(TAG,"DEVICE_DOES_NOT_SUPPORT_UART ???");
-                //DeviceControlActivity.mBluetoothLeService.disconnect();
-                finish(); //close the activity
-            }
-        }
+        public void onReceive(Context context, Intent intent) {        }
     };
-
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         //intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);

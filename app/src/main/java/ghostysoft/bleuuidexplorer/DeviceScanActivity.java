@@ -86,6 +86,13 @@ public class DeviceScanActivity extends ListActivity {
             finish();
             return;
         }
+
+        // Checks if Bluetooth is supported on the device.
+        if (mBluetoothAdapter.getState()==BluetoothAdapter.STATE_OFF) {
+            Toast.makeText(this, R.string.error_bluetooth_not_enabled, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
     }
 
     @Override
@@ -529,7 +536,15 @@ public class DeviceScanActivity extends ListActivity {
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
                     Log.d(TAG,  String.format("*** BluetoothAdapter.LeScanCallback.onLeScan(): *RSSI=%d",rssi));
 
-                    // device.fetchUuidsWithSdp(); //ghosty, improve stability ?
+                    // device.fetchUuidsWithSdp(); //by ghosty, improve stability ?
+
+                    // check if the device is scanned in the device list
+                    for (int i=0; i<scanIndex; i++) {
+                        if (scanDevice[i].Address.equals(device.getAddress())) {
+                            Log.d(TAG,  String.format("*** BluetoothAdapter.LeScanCallback.onLeScan(): * skip address %s",scanDevice[i].Address));
+                            return;
+                        }
+                    }
 
                     final String deviceName = device.getName();
                     scanDevice[scanIndex]= new deviceInfo();
@@ -570,7 +585,7 @@ public class DeviceScanActivity extends ListActivity {
         TextView deviceRSSI;
         TextView deviceType;
         TextView deviceBoundState;
-        TextView deviceScanResult;        
+        TextView deviceScanResult;
         TextView listEIRs;
     }
 }

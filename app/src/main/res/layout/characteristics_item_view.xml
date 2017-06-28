@@ -61,4 +61,23 @@
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Write Type : "
+            android:layout_marginLeft="40dip"
+            android:id="@+id/textView9" />
+
+        <TextView
+            android:text="TextView"
+            android:id="@+id/characteristic_writetype"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
 </LinearLayout>

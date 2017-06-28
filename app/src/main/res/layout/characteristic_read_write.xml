@@ -31,8 +31,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/CharRW_Read_Layout"
-        android:background="@color/background_material_light">
+        android:id="@+id/CharRW_Read_Layout">
 
         <RadioGroup
             android:layout_width="wrap_content"
@@ -54,21 +53,24 @@
                 android:text="DEC"
                 android:id="@+id/characteristic_ReadFormatDEC"
                 android:checked="true"
-                android:enabled="true" />
+                android:enabled="true"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HEX"
                 android:id="@+id/characteristic_ReadFormatHEX"
-                android:enabled="true" />
+                android:enabled="true"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="String"
                 android:id="@+id/characteristic_ReadFormatSTRING"
-                android:enabled="true" />
+                android:enabled="true"
+                android:textSize="14sp" />
 
         </RadioGroup>
 
@@ -121,13 +123,11 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/CharRW_WriteLayout"
-        android:background="@color/background_material_light"
-        android:layout_marginTop="30dp">
+        android:id="@+id/CharRW_WriteLayout">
 
         <RadioGroup
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:id="@+id/CharRW_WriteFormatGorup"
@@ -146,26 +146,29 @@
                 android:text="DEC"
                 android:id="@+id/CharRW_WriteFormatDEC"
                 android:checked="true"
-                android:enabled="true" />
+                android:enabled="true"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="HEX"
                 android:id="@+id/CharRW_WriteFormatHEX"
-                android:enabled="true" />
+                android:enabled="true"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="String"
-                android:id="@+id/CharRW_WriteFormatString"
-                android:enabled="true" />
+                android:id="@+id/CharRW_WriteFormatSTRING"
+                android:enabled="true"
+                android:textSize="14sp" />
 
         </RadioGroup>
 
-        <EditText
-            android:layout_width="fill_parent"
+    <EditText
+            android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
@@ -173,38 +176,58 @@
             android:id="@+id/CharRW_WriteData"
             android:background="@color/ltgray"
             android:editable="true"
-            android:enabled="false" />
+            android:enabled="false"
+        android:layout_weight="1" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_vertical">
+            android:layout_height="match_parent"
+            android:gravity="right"
+            android:layout_marginLeft="10dp">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="right"
-                android:layout_marginLeft="10dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clear"
+                android:id="@+id/CharRW_btnClear"
+                android:layout_marginRight="20dp" />
 
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Clear"
-                    android:id="@+id/CharRW_btnClear"
-                    android:layout_marginRight="20dp" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Write"
-                    android:id="@+id/CharRW_btnWrite"
-                    android:layout_gravity="center_horizontal" />
-            </LinearLayout>
-
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Write"
+                android:id="@+id/CharRW_btnWrite"
+                android:layout_gravity="center_horizontal" />
         </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+        android:layout_weight="6.05">
+
+        <TextView
+            android:text="\nNotes: max 20 bytes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:text="\t\t  DEC format : 0 32 128 255 (0~255)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:text="\t\t  HEX format: 00 80 FF (00~FF)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+        android:text="\t\tString format: any string of max 20 bytes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
     </LinearLayout>
 
 </LinearLayout>

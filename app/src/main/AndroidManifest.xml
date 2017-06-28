@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ghostysoft.bleuuidexplorer"
-    android:versionCode="12"
-    android:versionName="0.1.12" >
+    android:versionCode="13"
+    android:versionName="0.1.13" >
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -40,6 +40,14 @@
         <activity
             android:name=".CharacteristicUartActivity"
             android:label="@string/title_activity_characteristic_uart" >
+        </activity>
+        <activity
+            android:name=".KosoMeterActivity"
+            android:label="@string/title_activity_koso_meter"
+            android:parentActivityName=".DeviceControlActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ghostysoft.bleuuidexplorer.DeviceControlActivity" />
         </activity>
     </application>
 

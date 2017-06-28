@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "ghostysoft.bleuuidexplorer"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 12
-        versionName "0.1.12"
+        versionCode 13
+        versionName "0.1.13"
     }
     buildTypes {
         release {

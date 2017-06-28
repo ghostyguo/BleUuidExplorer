@@ -54,7 +54,7 @@ public class CharacteristicReadWriteActivity extends Activity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                if (!mNotify) {
                     if ( DeviceControlActivity.mConnected) { //Check connection state before READ
-                        DeviceControlActivity.mBluetoothLeService.readCharacteristic(DeviceControlActivity.mTargetCharacteristic);
+                        DeviceControlActivity.mBluetoothLeService.readCharacteristic(BluetoothLeService.mTargetCharacteristic);
                     }
                }
             }
@@ -67,8 +67,9 @@ public class CharacteristicReadWriteActivity extends Activity {
             }
         });
 
-        //mRxData.setText(DeviceControlActivity.mTargetCharacteristic.getUuid().toString()); //debug
-        final int charaProp = DeviceControlActivity.mTargetCharacteristic.getProperties();
+        //mRxData.setText(BluetoothLeService.mTargetCharacteristic.getUuid().toString()); //debug
+        final int charaProp = BluetoothLeService.mTargetCharacteristic.getProperties();
+        Log.d(TAG,String.format("charaProp=%08x",charaProp));
 
         if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
             mButtonRead.setEnabled(true);
@@ -77,7 +78,7 @@ public class CharacteristicReadWriteActivity extends Activity {
                 public void onClick(View v) {
                     Toast.makeText(CharacteristicReadWriteActivity.this, "Read", Toast.LENGTH_SHORT).show();
                     if ( DeviceControlActivity.mConnected) { //Check connection state before READ
-                        DeviceControlActivity.mBluetoothLeService.readCharacteristic(DeviceControlActivity.mTargetCharacteristic);
+                        DeviceControlActivity.mBluetoothLeService.readCharacteristic(BluetoothLeService.mTargetCharacteristic);
                     }
                 }
             });
@@ -90,12 +91,12 @@ public class CharacteristicReadWriteActivity extends Activity {
             mButtonNotify.setOnClickListener(new Button.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    if (DeviceControlActivity.mTargetCharacteristic != null) {
+                    if (BluetoothLeService.mTargetCharacteristic != null) {
                         // if ( DeviceControlActivity.mConnected) { //Check connection state before READ
                         if (mNotifyCharacteristic == null) {
                             // Enable Notify
                             Toast.makeText(CharacteristicReadWriteActivity.this, "Notify Enabled", Toast.LENGTH_SHORT).show();
-                            mNotifyCharacteristic = DeviceControlActivity.mTargetCharacteristic;
+                            mNotifyCharacteristic = BluetoothLeService.mTargetCharacteristic;
                             DeviceControlActivity.mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);
                             DeviceControlActivity.mBluetoothLeService.readCharacteristic(mNotifyCharacteristic); //read once to start notify?
                             mButtonNotify.setTextColor(Color.RED);
@@ -124,12 +125,12 @@ public class CharacteristicReadWriteActivity extends Activity {
             mButtonIndicate.setOnClickListener(new Button.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    if (DeviceControlActivity.mTargetCharacteristic != null) {
+                    if (BluetoothLeService.mTargetCharacteristic != null) {
                         // if ( DeviceControlActivity.mConnected) { //Check connection state before READ
                         if (mIndicateCharacteristic == null) {
                             // Enable Notify
                             Toast.makeText(CharacteristicReadWriteActivity.this, "Indicate Enabled", Toast.LENGTH_SHORT).show();
-                            mIndicateCharacteristic = DeviceControlActivity.mTargetCharacteristic;
+                            mIndicateCharacteristic = BluetoothLeService.mTargetCharacteristic;
                             DeviceControlActivity.mBluetoothLeService.setCharacteristicIndication(mIndicateCharacteristic, true);
                             DeviceControlActivity.mBluetoothLeService.readCharacteristic(mIndicateCharacteristic); //read once to start indicate?
                             mButtonIndicate.setTextColor(Color.RED);
@@ -161,12 +162,19 @@ public class CharacteristicReadWriteActivity extends Activity {
                 @Override
                 public void onClick(View v) {
                     String message =mWriteData.getText().toString();
-                    byte[] value;
-                    try {
+                    byte[] value=null;
+                    //try {
                         switch (mWriteFormatGroup.getCheckedRadioButtonId()) {
-                            case R.id.CharRW_WriteFormatString:
+                            /*
+                                                        case R.id.CharRW_WriteFormatCHAR:
+                                                                Log.d(TAG,"CharRW_WriteFormatString");
+                                                                value = message.getBytes("UTF-8");
+                                                                break;
+                                                         */
+                            case R.id.CharRW_WriteFormatSTRING:
                                 Log.d(TAG,"CharRW_WriteFormatString");
-                                value = message.getBytes("UTF-8");
+                                DeviceControlActivity.mBluetoothLeService.writeCharacteristic(BluetoothLeService.mTargetCharacteristic, message);
+                                Toast.makeText(getApplication(), "Write (" + message + ")", Toast.LENGTH_SHORT).show();
                                 break;
                             case R.id.CharRW_WriteFormatDEC:
                                 Log.d(TAG,"CharRW_WriteFormatDEC");
@@ -177,23 +185,25 @@ public class CharacteristicReadWriteActivity extends Activity {
                                 value =  new DataManager().hexStringToByteArray(message);
                                 break;
                             default:
-                                value = null;
                                 Log.d(TAG, "Write Format ERROR");
                         }
-                        //send data to service
-                        if (value!=null) {
-                            DeviceControlActivity.mBluetoothLeService.writeCharacteristic(DeviceControlActivity.mTargetCharacteristic, value);
-                            Toast.makeText(getApplication(), "Write ("+value.length+")", Toast.LENGTH_SHORT).show();
 
-                        }
-                        else {
-                            Toast.makeText(getApplication(),"write data null",Toast.LENGTH_SHORT).show();
-                        }
-                       // editText.setText("");
-                    } catch (UnsupportedEncodingException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                    /*
+                                        }
+                                        catch (UnsupportedEncodingException e) {
+                                            // TODO Auto-generated catch block
+                                            e.printStackTrace();
+                                        }
+                                        */
+
+                    if (value!=null) {
+                            DeviceControlActivity.mBluetoothLeService.writeCharacteristic(BluetoothLeService.mTargetCharacteristic, value);
+                            Toast.makeText(getApplication(), "Write (" + value.length + ")", Toast.LENGTH_SHORT).show();
                     }
+                    else {
+                        Toast.makeText(getApplication(),"write data null",Toast.LENGTH_SHORT).show();
+                    }
+                    // editText.setText("");
                 }
             });
 
@@ -220,7 +230,6 @@ public class CharacteristicReadWriteActivity extends Activity {
             Log.d(TAG, "Connect request result=" + result);
         }
     }
-
 
     @Override
     protected void onPause() {

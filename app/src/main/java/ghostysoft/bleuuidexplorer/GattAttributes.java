@@ -21,9 +21,6 @@ public class GattAttributes {
     private static HashMap<String, String> attributes = new HashMap();
     public static List<uartChar> uarts = new ArrayList<>(); // <Service,Rx,Tx>
 
-    //public static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb");
-    public static UUID UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
     public static int IsUartService(UUID uuid) {
         for (int i=0; i<uarts.size(); i++) {
             if (uuid.equals(UUID.fromString(uarts.get(i).Service)))
@@ -31,7 +28,6 @@ public class GattAttributes {
         }
         return -1;
     }
-
     public static int IsUartCharacteristic(UUID uuid) {
         for (int i=0; i<uarts.size(); i++) {
             if (uuid.equals(UUID.fromString(uarts.get(i).RxChar)) || uuid.equals(UUID.fromString(uarts.get(i).TxChar)))
@@ -39,7 +35,6 @@ public class GattAttributes {
         }
         return -1;
     }
-
     public static int IsUartRxCharacteristic(UUID uuid) {
         for (int i=0; i<uarts.size(); i++) {
             if (uuid.equals(UUID.fromString(uarts.get(i).RxChar)))
@@ -47,7 +42,6 @@ public class GattAttributes {
         }
         return -1;
     }
-
     public static int IsUartTxCharacteristic(UUID uuid) {
         for (int i=0; i<uarts.size(); i++) {
             if (uuid.equals(UUID.fromString(uarts.get(i).TxChar)))
@@ -55,14 +49,14 @@ public class GattAttributes {
         }
         return -1;
     }
-
     public static String lookup(String uuid, String defaultName) {
         String name = attributes.get(uuid);
         return name == null ? defaultName : name;
     }
 
+    public static UUID UUID_CLIENT_CHARACTERISTIC_CONFIG = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+
     static {
-        //uarts.add(new uartChar(Service UUID, RX UUID, TX UUID ));      // RX=Write/writeNoResponse, TX=Notify/Indication
         uarts.add(new uartChar("6e400001-b5a3-f393-e0a9-e50e24dcca9e","6e400002-b5a3-f393-e0a9-e50e24dcca9e","6e400003-b5a3-f393-e0a9-e50e24dcca9e"));      //Nordic
         uarts.add(new uartChar("49535343-fe7d-4ae5-8fa9-9fafd205e455", "49535343-8841-43f4-a8d4-ecbe34729bb3", "49535343-1e4d-4bd9-ba61-23c647249616"));  //ISSC
         uarts.add(new uartChar("0000fff0-0000-1000-8000-00805f9b34fb", "0000fff1-0000-1000-8000-00805f9b34fb", "0000fff2-0000-1000-8000-00805f9b34fb"));  //ISSC Trandparent
@@ -72,7 +66,6 @@ public class GattAttributes {
     }
 
     static {
-        // Sample Services.
         attributes.put("00001800-0000-1000-8000-00805f9b34fb", "Generic Access");
         attributes.put("00001801-0000-1000-8000-00805f9b34fb", "Generic Attribute");
         attributes.put("00001802-0000-1000-8000-00805f9b34fb", "Immediate Alert");
@@ -416,6 +409,237 @@ public class GattAttributes {
         attributes.put("0000e00c-0000-1000-8000-00805f9b34fb", "Audio Program Name Temp");
         attributes.put("0000e00d-0000-1000-8000-00805f9b34fb", "Audio Program Catogory Temp");
 
+        // 16-bit UUIDs for Members, ordered by UUID ----------------------------------------------------------------------
+        attributes.put("0000fe1c-0000-1000-8000-00805f9b34fb", "Custom UUID of NetMedia, Inc.");
+        attributes.put("0000fe1d-0000-1000-8000-00805f9b34fb", "Custom UUID of Illuminati Instrument Corporation");
+        attributes.put("0000fe1e-0000-1000-8000-00805f9b34fb", "Custom UUID of Smart Innovations Co., Ltd");
+        attributes.put("0000fe1f-0000-1000-8000-00805f9b34fb", "Custom UUID of Garmin International, Inc.");
+        attributes.put("0000fe20-0000-1000-8000-00805f9b34fb", "Custom UUID of Emerson");
+        attributes.put("0000fe21-0000-1000-8000-00805f9b34fb", "Custom UUID of Bose Corporation");
+        attributes.put("0000fe22-0000-1000-8000-00805f9b34fb", "Custom UUID of Zoll Medical Corporation");
+        attributes.put("0000fe23-0000-1000-8000-00805f9b34fb", "Custom UUID of Zoll Medical Corporation");
+        attributes.put("0000fe24-0000-1000-8000-00805f9b34fb", "Custom UUID of August Home Inc");
+        attributes.put("0000fe25-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fe26-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fe27-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fe28-0000-1000-8000-00805f9b34fb", "Custom UUID of Ayla Networks");
+        attributes.put("0000fe29-0000-1000-8000-00805f9b34fb", "Custom UUID of Gibson Innovations");
+        attributes.put("0000fe2a-0000-1000-8000-00805f9b34fb", "Custom UUID of DaisyWorks, Inc.");
+        attributes.put("0000fe2b-0000-1000-8000-00805f9b34fb", "Custom UUID of ITT Industries");
+        attributes.put("0000fe2c-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fe2d-0000-1000-8000-00805f9b34fb", "Custom UUID of SMART INNOVATION Co.,Ltd");
+        attributes.put("0000fe2e-0000-1000-8000-00805f9b34fb", "Custom UUID of ERi,Inc.");
+        attributes.put("0000fe2f-0000-1000-8000-00805f9b34fb", "Custom UUID of CRESCO Wireless, Inc");
+        attributes.put("0000fe30-0000-1000-8000-00805f9b34fb", "Custom UUID of Volkswagen AG");
+        attributes.put("0000fe31-0000-1000-8000-00805f9b34fb", "Custom UUID of Volkswagen AG");
+        attributes.put("0000fe32-0000-1000-8000-00805f9b34fb", "Custom UUID of Pro-Mark, Inc.");
+        attributes.put("0000fe33-0000-1000-8000-00805f9b34fb", "Custom UUID of CHIPOLO d.o.o.");
+        attributes.put("0000fe34-0000-1000-8000-00805f9b34fb", "Custom UUID of SmallLoop LLC");
+        attributes.put("0000fe35-0000-1000-8000-00805f9b34fb", "Custom UUID of HUAWEI Technologies Co., Ltd");
+        attributes.put("0000fe36-0000-1000-8000-00805f9b34fb", "Custom UUID of HUAWEI Technologies Co., Ltd");
+        attributes.put("0000fe37-0000-1000-8000-00805f9b34fb", "Custom UUID of Spaceek LTD");
+        attributes.put("0000fe38-0000-1000-8000-00805f9b34fb", "Custom UUID of Spaceek LTD");
+        attributes.put("0000fe39-0000-1000-8000-00805f9b34fb", "Custom UUID of TTS Tooltechnic Systems AG & Co. KG");
+        attributes.put("0000fe3a-0000-1000-8000-00805f9b34fb", "Custom UUID of TTS Tooltechnic Systems AG & Co. KG");
+        attributes.put("0000fe3b-0000-1000-8000-00805f9b34fb", "Custom UUID of Dolby Laboratories");
+        attributes.put("0000fe3c-0000-1000-8000-00805f9b34fb", "Custom UUID of Alibaba");
+        attributes.put("0000fe3d-0000-1000-8000-00805f9b34fb", "Custom UUID of BD Medical");
+        attributes.put("0000fe3e-0000-1000-8000-00805f9b34fb", "Custom UUID of BD Medical");
+        attributes.put("0000fe3f-0000-1000-8000-00805f9b34fb", "Custom UUID of Friday Labs Limited");
+        attributes.put("0000fe40-0000-1000-8000-00805f9b34fb", "Custom UUID of Inugo Systems Limited");
+        attributes.put("0000fe41-0000-1000-8000-00805f9b34fb", "Custom UUID of Inugo Systems Limited");
+        attributes.put("0000fe42-0000-1000-8000-00805f9b34fb", "Custom UUID of Nets A/S");
+        attributes.put("0000fe43-0000-1000-8000-00805f9b34fb", "Custom UUID of Andreas Stihl AG & Co. KG");
+        attributes.put("0000fe44-0000-1000-8000-00805f9b34fb", "Custom UUID of SK Telecom");
+        attributes.put("0000fe45-0000-1000-8000-00805f9b34fb", "Custom UUID of Snapchat Inc");
+        attributes.put("0000fe46-0000-1000-8000-00805f9b34fb", "Custom UUID of B&O Play A/S");
+        attributes.put("0000fe47-0000-1000-8000-00805f9b34fb", "Custom UUID of General Motors");
+        attributes.put("0000fe48-0000-1000-8000-00805f9b34fb", "Custom UUID of General Motors");
+        attributes.put("0000fe49-0000-1000-8000-00805f9b34fb", "Custom UUID of SenionLab AB");
+        attributes.put("0000fe4a-0000-1000-8000-00805f9b34fb", "Custom UUID of OMRON HEALTHCARE Co., Ltd.");
+        attributes.put("0000fe4b-0000-1000-8000-00805f9b34fb", "Custom UUID of Koninklijke Philips N.V.");
+        attributes.put("0000fe4c-0000-1000-8000-00805f9b34fb", "Custom UUID of Volkswagen AG");
+        attributes.put("0000fe4d-0000-1000-8000-00805f9b34fb", "Custom UUID of Casambi Technologies Oy");
+        attributes.put("0000fe4e-0000-1000-8000-00805f9b34fb", "Custom UUID of NTT docomo");
+        attributes.put("0000fe4f-0000-1000-8000-00805f9b34fb", "Custom UUID of Molekule, Inc.");
+        attributes.put("0000fe50-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fe51-0000-1000-8000-00805f9b34fb", "Custom UUID of SRAM");
+        attributes.put("0000fe52-0000-1000-8000-00805f9b34fb", "Custom UUID of SetPoint Medical");
+        attributes.put("0000fe53-0000-1000-8000-00805f9b34fb", "Custom UUID of 3M");
+        attributes.put("0000fe54-0000-1000-8000-00805f9b34fb", "Custom UUID of Motiv, Inc.");
+        attributes.put("0000fe55-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fe56-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fe57-0000-1000-8000-00805f9b34fb", "Custom UUID of Dotted Labs");
+        attributes.put("0000fe58-0000-1000-8000-00805f9b34fb", "Custom UUID of Nordic Semiconductor ASA");
+        attributes.put("0000fe59-0000-1000-8000-00805f9b34fb", "Custom UUID of Nordic Semiconductor ASA");
+        attributes.put("0000fe5a-0000-1000-8000-00805f9b34fb", "Custom UUID of Chronologics Corporation");
+        attributes.put("0000fe5b-0000-1000-8000-00805f9b34fb", "Custom UUID of GT-tronics HK Ltd");
+        attributes.put("0000fe5c-0000-1000-8000-00805f9b34fb", "Custom UUID of million hunters GmbH");
+        attributes.put("0000fe5d-0000-1000-8000-00805f9b34fb", "Custom UUID of Grundfos A/S");
+        attributes.put("0000fe5e-0000-1000-8000-00805f9b34fb", "Custom UUID of Plastc Corporation");
+        attributes.put("0000fe5f-0000-1000-8000-00805f9b34fb", "Custom UUID of Eyefi, Inc.");
+        attributes.put("0000fe60-0000-1000-8000-00805f9b34fb", "Custom UUID of Lierda Science & Technology Group Co., Ltd.");
+        attributes.put("0000fe61-0000-1000-8000-00805f9b34fb", "Custom UUID of Logitech International SA");
+        attributes.put("0000fe62-0000-1000-8000-00805f9b34fb", "Custom UUID of Indagem Tech LLC");
+        attributes.put("0000fe63-0000-1000-8000-00805f9b34fb", "Custom UUID of Connected Yard, Inc.");
+        attributes.put("0000fe64-0000-1000-8000-00805f9b34fb", "Custom UUID of Siemens AG");
+        attributes.put("0000fe65-0000-1000-8000-00805f9b34fb", "Custom UUID of CHIPOLO d.o.o.");
+        attributes.put("0000fe66-0000-1000-8000-00805f9b34fb", "Custom UUID of Intel Corporation");
+        attributes.put("0000fe67-0000-1000-8000-00805f9b34fb", "Custom UUID of Lab Sensor Solutions");
+        attributes.put("0000fe68-0000-1000-8000-00805f9b34fb", "Custom UUID of Qualcomm Life Inc");
+        attributes.put("0000fe69-0000-1000-8000-00805f9b34fb", "Custom UUID of Qualcomm Life Inc");
+        attributes.put("0000fe6a-0000-1000-8000-00805f9b34fb", "Custom UUID of Kontakt Micro-Location Sp. z o.o.");
+        attributes.put("0000fe6b-0000-1000-8000-00805f9b34fb", "Custom UUID of TASER International, Inc.");
+        attributes.put("0000fe6c-0000-1000-8000-00805f9b34fb", "Custom UUID of TASER International, Inc.");
+        attributes.put("0000fe6d-0000-1000-8000-00805f9b34fb", "Custom UUID of The University of Tokyo");
+        attributes.put("0000fe6e-0000-1000-8000-00805f9b34fb", "Custom UUID of The University of Tokyo");
+        attributes.put("0000fe6f-0000-1000-8000-00805f9b34fb", "Custom UUID of LINE Corporation");
+        attributes.put("0000fe70-0000-1000-8000-00805f9b34fb", "Custom UUID of Beijing Jingdong Century Trading Co., Ltd.");
+        attributes.put("0000fe71-0000-1000-8000-00805f9b34fb", "Custom UUID of Plume Design Inc");
+        attributes.put("0000fe72-0000-1000-8000-00805f9b34fb", "Custom UUID of St. Jude Medical, Inc.");
+        attributes.put("0000fe73-0000-1000-8000-00805f9b34fb", "Custom UUID of St. Jude Medical, Inc.");
+        attributes.put("0000fe74-0000-1000-8000-00805f9b34fb", "Custom UUID of unwire");
+        attributes.put("0000fe75-0000-1000-8000-00805f9b34fb", "Custom UUID of TangoMe");
+        attributes.put("0000fe76-0000-1000-8000-00805f9b34fb", "Custom UUID of TangoMe");
+        attributes.put("0000fe77-0000-1000-8000-00805f9b34fb", "Custom UUID of Hewlett-Packard Company");
+        attributes.put("0000fe78-0000-1000-8000-00805f9b34fb", "Custom UUID of Hewlett-Packard Company");
+        attributes.put("0000fe79-0000-1000-8000-00805f9b34fb", "Custom UUID of Zebra Technologies");
+        attributes.put("0000fe7a-0000-1000-8000-00805f9b34fb", "Custom UUID of Bragi GmbH");
+        attributes.put("0000fe7b-0000-1000-8000-00805f9b34fb", "Custom UUID of Orion Labs, Inc.");
+        attributes.put("0000fe7c-0000-1000-8000-00805f9b34fb", "Custom UUID of Telit Wireless Solutions (Formerly Stollmann E+V GmbH)");
+        attributes.put("0000fe7d-0000-1000-8000-00805f9b34fb", "Custom UUID of Aterica Health Inc.");
+        attributes.put("0000fe7e-0000-1000-8000-00805f9b34fb", "Custom UUID of Awear Solutions Ltd");
+        attributes.put("0000fe7f-0000-1000-8000-00805f9b34fb", "Custom UUID of Doppler Lab");
+        attributes.put("0000fe80-0000-1000-8000-00805f9b34fb", "Custom UUID of Doppler Lab");
+        attributes.put("0000fe81-0000-1000-8000-00805f9b34fb", "Custom UUID of Medtronic Inc.");
+        attributes.put("0000fe82-0000-1000-8000-00805f9b34fb", "Custom UUID of Medtronic Inc.");
+        attributes.put("0000fe83-0000-1000-8000-00805f9b34fb", "Custom UUID of Blue Bite");
+        attributes.put("0000fe84-0000-1000-8000-00805f9b34fb", "Custom UUID of RF Digital Corp");
+        attributes.put("0000fe85-0000-1000-8000-00805f9b34fb", "Custom UUID of RF Digital Corp");
+        attributes.put("0000fe86-0000-1000-8000-00805f9b34fb", "Custom UUID of HUAWEI Technologies Co., Ltd. ( )");
+        attributes.put("0000fe87-0000-1000-8000-00805f9b34fb", "Custom UUID of Qingdao Yeelink Information Technology Co., Ltd. ( )");
+        attributes.put("0000fe88-0000-1000-8000-00805f9b34fb", "Custom UUID of SALTO SYSTEMS S.L.");
+        attributes.put("0000fe89-0000-1000-8000-00805f9b34fb", "Custom UUID of B&O Play A/S");
+        attributes.put("0000fe8a-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fe8b-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fe8c-0000-1000-8000-00805f9b34fb", "Custom UUID of TRON Forum");
+        attributes.put("0000fe8d-0000-1000-8000-00805f9b34fb", "Custom UUID of Interaxon Inc.");
+        attributes.put("0000fe8e-0000-1000-8000-00805f9b34fb", "Custom UUID of ARM Ltd");
+        attributes.put("0000fe8f-0000-1000-8000-00805f9b34fb", "Custom UUID of CSR");
+        attributes.put("0000fe90-0000-1000-8000-00805f9b34fb", "Custom UUID of JUMA");
+        attributes.put("0000fe91-0000-1000-8000-00805f9b34fb", "Custom UUID of Shanghai Imilab Technology Co.,Ltd");
+        attributes.put("0000fe92-0000-1000-8000-00805f9b34fb", "Custom UUID of Jarden Safety & Security");
+        attributes.put("0000fe93-0000-1000-8000-00805f9b34fb", "Custom UUID of OttoQ Inc.");
+        attributes.put("0000fe94-0000-1000-8000-00805f9b34fb", "Custom UUID of OttoQ Inc.");
+        attributes.put("0000fe95-0000-1000-8000-00805f9b34fb", "Custom UUID of Xiaomi Inc.");
+        attributes.put("0000fe96-0000-1000-8000-00805f9b34fb", "Custom UUID of Tesla Motor Inc.");
+        attributes.put("0000fe97-0000-1000-8000-00805f9b34fb", "Custom UUID of Tesla Motor Inc.");
+        attributes.put("0000fe98-0000-1000-8000-00805f9b34fb", "Custom UUID of Currant, Inc.");
+        attributes.put("0000fe99-0000-1000-8000-00805f9b34fb", "Custom UUID of Currant, Inc.");
+        attributes.put("0000fe9a-0000-1000-8000-00805f9b34fb", "Custom UUID of Estimote");
+        attributes.put("0000fe9b-0000-1000-8000-00805f9b34fb", "Custom UUID of Samsara Networks, Inc");
+        attributes.put("0000fe9c-0000-1000-8000-00805f9b34fb", "Custom UUID of GSI Laboratories, Inc.");
+        attributes.put("0000fe9d-0000-1000-8000-00805f9b34fb", "Custom UUID of Mobiquity Networks Inc");
+        attributes.put("0000fe9e-0000-1000-8000-00805f9b34fb", "Custom UUID of Dialog Semiconductor B.V.");
+        attributes.put("0000fe9f-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fea0-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fea1-0000-1000-8000-00805f9b34fb", "Custom UUID of Intrepid Control Systems, Inc.");
+        attributes.put("0000fea2-0000-1000-8000-00805f9b34fb", "Custom UUID of Intrepid Control Systems, Inc.");
+        attributes.put("0000fea3-0000-1000-8000-00805f9b34fb", "Custom UUID of ITT Industries");
+        attributes.put("0000fea4-0000-1000-8000-00805f9b34fb", "Custom UUID of Paxton Access Ltd");
+        attributes.put("0000fea5-0000-1000-8000-00805f9b34fb", "Custom UUID of GoPro, Inc.");
+        attributes.put("0000fea6-0000-1000-8000-00805f9b34fb", "Custom UUID of GoPro, Inc.");
+        attributes.put("0000fea7-0000-1000-8000-00805f9b34fb", "Custom UUID of UTC Fire and Security");
+        attributes.put("0000fea8-0000-1000-8000-00805f9b34fb", "Custom UUID of Savant Systems LLC");
+        attributes.put("0000fea9-0000-1000-8000-00805f9b34fb", "Custom UUID of Savant Systems LLC");
+        attributes.put("0000feaa-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000feab-0000-1000-8000-00805f9b34fb", "Custom UUID of Nokia Corporation");
+        attributes.put("0000feac-0000-1000-8000-00805f9b34fb", "Custom UUID of Nokia Corporation");
+        attributes.put("0000fead-0000-1000-8000-00805f9b34fb", "Custom UUID of Nokia Corporation");
+        attributes.put("0000feae-0000-1000-8000-00805f9b34fb", "Custom UUID of Nokia Corporation");
+        attributes.put("0000feaf-0000-1000-8000-00805f9b34fb", "Custom UUID of Nest Labs Inc.");
+        attributes.put("0000feb0-0000-1000-8000-00805f9b34fb", "Custom UUID of Nest Labs Inc.");
+        attributes.put("0000feb1-0000-1000-8000-00805f9b34fb", "Custom UUID of Electronics Tomorrow Limited");
+        attributes.put("0000feb2-0000-1000-8000-00805f9b34fb", "Custom UUID of Microsoft Corporation");
+        attributes.put("0000feb3-0000-1000-8000-00805f9b34fb", "Custom UUID of Taobao");
+        attributes.put("0000feb4-0000-1000-8000-00805f9b34fb", "Custom UUID of WiSilica Inc.");
+        attributes.put("0000feb5-0000-1000-8000-00805f9b34fb", "Custom UUID of WiSilica Inc.");
+        attributes.put("0000feb6-0000-1000-8000-00805f9b34fb", "Custom UUID of Vencer Co, Ltd");
+        attributes.put("0000feb7-0000-1000-8000-00805f9b34fb", "Custom UUID of Facebook, Inc.");
+        attributes.put("0000feb8-0000-1000-8000-00805f9b34fb", "Custom UUID of Facebook, Inc.");
+        attributes.put("0000feb9-0000-1000-8000-00805f9b34fb", "Custom UUID of LG Electronics");
+        attributes.put("0000feba-0000-1000-8000-00805f9b34fb", "Custom UUID of Tencent Holdings Limited");
+        attributes.put("0000febb-0000-1000-8000-00805f9b34fb", "Custom UUID of adafruit industries");
+        attributes.put("0000febc-0000-1000-8000-00805f9b34fb", "Custom UUID of Dexcom, Inc.");
+        attributes.put("0000febd-0000-1000-8000-00805f9b34fb", "Custom UUID of Clover Network, Inc.");
+        attributes.put("0000febe-0000-1000-8000-00805f9b34fb", "Custom UUID of Bose Corporation");
+        attributes.put("0000febf-0000-1000-8000-00805f9b34fb", "Custom UUID of Nod, Inc.");
+        attributes.put("0000fec0-0000-1000-8000-00805f9b34fb", "Custom UUID of KDDI Corporation");
+        attributes.put("0000fec1-0000-1000-8000-00805f9b34fb", "Custom UUID of KDDI Corporation");
+        attributes.put("0000fec2-0000-1000-8000-00805f9b34fb", "Custom UUID of Blue Spark Technologies, Inc.");
+        attributes.put("0000fec3-0000-1000-8000-00805f9b34fb", "Custom UUID of 360fly, Inc.");
+        attributes.put("0000fec4-0000-1000-8000-00805f9b34fb", "Custom UUID of PLUS Location Systems");
+        attributes.put("0000fec5-0000-1000-8000-00805f9b34fb", "Custom UUID of Realtek Semiconductor Corp.");
+        attributes.put("0000fec6-0000-1000-8000-00805f9b34fb", "Custom UUID of Kocomojo, LLC");
+        attributes.put("0000fec7-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fec8-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fec9-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000feca-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fecb-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fecc-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fecd-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fece-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fecf-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fed0-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fed1-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fed2-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fed3-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fed4-0000-1000-8000-00805f9b34fb", "Custom UUID of Apple, Inc.");
+        attributes.put("0000fed5-0000-1000-8000-00805f9b34fb", "Custom UUID of Plantronics Inc.");
+        attributes.put("0000fed6-0000-1000-8000-00805f9b34fb", "Custom UUID of Broadcom Corporation");
+        attributes.put("0000fed7-0000-1000-8000-00805f9b34fb", "Custom UUID of Broadcom Corporation");
+        attributes.put("0000fed8-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fed9-0000-1000-8000-00805f9b34fb", "Custom UUID of Pebble Technology Corporation");
+        attributes.put("0000feda-0000-1000-8000-00805f9b34fb", "Custom UUID of ISSC Technologies Corporation");
+        attributes.put("0000fedb-0000-1000-8000-00805f9b34fb", "Custom UUID of Perka, Inc.");
+        attributes.put("0000fedc-0000-1000-8000-00805f9b34fb", "Custom UUID of Jawbone");
+        attributes.put("0000fedd-0000-1000-8000-00805f9b34fb", "Custom UUID of Jawbone");
+        attributes.put("0000fede-0000-1000-8000-00805f9b34fb", "Custom UUID of Coin, Inc.");
+        attributes.put("0000fedf-0000-1000-8000-00805f9b34fb", "Custom UUID of Design SHIFT");
+        attributes.put("0000fee0-0000-1000-8000-00805f9b34fb", "Custom UUID of Anhui Huami Information Technology Co.");
+        attributes.put("0000fee1-0000-1000-8000-00805f9b34fb", "Custom UUID of Anhui Huami Information Technology Co.");
+        attributes.put("0000fee2-0000-1000-8000-00805f9b34fb", "Custom UUID of Anki, Inc.");
+        attributes.put("0000fee3-0000-1000-8000-00805f9b34fb", "Custom UUID of Anki, Inc.");
+        attributes.put("0000fee4-0000-1000-8000-00805f9b34fb", "Custom UUID of Nordic Semiconductor ASA");
+        attributes.put("0000fee5-0000-1000-8000-00805f9b34fb", "Custom UUID of Nordic Semiconductor ASA");
+        attributes.put("0000fee6-0000-1000-8000-00805f9b34fb", "Custom UUID of Silvair, Inc.");
+        attributes.put("0000fee7-0000-1000-8000-00805f9b34fb", "Custom UUID of Tencent Holdings Limited");
+        attributes.put("0000fee8-0000-1000-8000-00805f9b34fb", "Custom UUID of Quintic Corp.");
+        attributes.put("0000fee9-0000-1000-8000-00805f9b34fb", "Custom UUID of Quintic Corp.");
+        attributes.put("0000feea-0000-1000-8000-00805f9b34fb", "Custom UUID of Swirl Networks, Inc.");
+        attributes.put("0000feeb-0000-1000-8000-00805f9b34fb", "Custom UUID of Swirl Networks, Inc.");
+        attributes.put("0000feec-0000-1000-8000-00805f9b34fb", "Custom UUID of Tile, Inc.");
+        attributes.put("0000feed-0000-1000-8000-00805f9b34fb", "Custom UUID of Tile, Inc.");
+        attributes.put("0000feee-0000-1000-8000-00805f9b34fb", "Custom UUID of Polar Electro Oy");
+        attributes.put("0000feef-0000-1000-8000-00805f9b34fb", "Custom UUID of Polar Electro Oy");
+        attributes.put("0000fef0-0000-1000-8000-00805f9b34fb", "Custom UUID of Intel");
+        attributes.put("0000fef1-0000-1000-8000-00805f9b34fb", "Custom UUID of CSR");
+        attributes.put("0000fef2-0000-1000-8000-00805f9b34fb", "Custom UUID of CSR");
+        attributes.put("0000fef3-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fef4-0000-1000-8000-00805f9b34fb", "Custom UUID of Google Inc.");
+        attributes.put("0000fef5-0000-1000-8000-00805f9b34fb", "Custom UUID of Dialog Semiconductor GmbH");
+        attributes.put("0000fef6-0000-1000-8000-00805f9b34fb", "Custom UUID of Wicentric, Inc.");
+        attributes.put("0000fef7-0000-1000-8000-00805f9b34fb", "Custom UUID of Aplix Corporation");
+        attributes.put("0000fef8-0000-1000-8000-00805f9b34fb", "Custom UUID of Aplix Corporation");
+        attributes.put("0000fef9-0000-1000-8000-00805f9b34fb", "Custom UUID of PayPal, Inc.");
+        attributes.put("0000fefa-0000-1000-8000-00805f9b34fb", "Custom UUID of PayPal, Inc.");
+        attributes.put("0000fefb-0000-1000-8000-00805f9b34fb", "Custom UUID of Telit Wireless Solutions (Formerly Stollmann E+V GmbH)");
+        attributes.put("0000fefc-0000-1000-8000-00805f9b34fb", "Custom UUID of Gimbal, Inc.");
+        attributes.put("0000fefd-0000-1000-8000-00805f9b34fb", "Custom UUID of Gimbal, Inc.");
+        attributes.put("0000fefe-0000-1000-8000-00805f9b34fb", "Custom UUID of GN ReSound A/S");
+        attributes.put("0000feff-0000-1000-8000-00805f9b34fb", "Custom UUID of GN Netcom");
+
+
         // Non-Standard public, ordered by UUID -------------------------------------------------------------------------------------------------------
 
         attributes.put("0000ffe0-0000-1000-8000-00805f9b34fb", "HM-10 UART Service");
@@ -433,6 +657,11 @@ public class GattAttributes {
 
         attributes.put("0000fff6-0000-1000-8000-00805f9b34fb", "RX");
         attributes.put("0000fff7-0000-1000-8000-00805f9b34fb", "TX");
+
+        //16 Bit UUIDs For SDOs, ordered by UUID ----------------------------------------------------------------------
+        attributes.put("0000fffc-0000-1000-8000-00805f9b34fb", "AirFuel Alliance Wireless Power Transfer Service");
+        attributes.put("0000fffd-0000-1000-8000-00805f9b34fb", "Fast IDentity Online Alliance Universal Second Factor Authenticator Service");
+        attributes.put("0000fffe-0000-1000-8000-00805f9b34fb", "AirFuel Alliance Wireless Power Transfer Service");
 
         //Nodric Service
         attributes.put("6e400001-b5a3-f393-e0a9-e50e24dcca9e", "Nodric UART Service");

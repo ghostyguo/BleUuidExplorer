@@ -33,7 +33,8 @@
                 android:layout_alignParentBottom="true"
                 android:layout_toEndOf="@+id/UartRxModeGroup"
                 android:enabled="true"
-                android:checked="false" />
+                android:checked="false"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -43,7 +44,8 @@
                 android:layout_above="@+id/UartFormatRx_String"
                 android:layout_toRightOf="@+id/UartRxModeGroup"
                 android:enabled="true"
-                android:checked="true" />
+                android:checked="true"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -53,7 +55,8 @@
                 android:checked="true"
                 android:layout_above="@+id/UartFormatRx_String"
                 android:layout_toRightOf="@+id/UartRxModeGroup"
-                android:enabled="true" />
+                android:enabled="true"
+                android:textSize="14sp" />
 
         </RadioGroup>
 
@@ -99,7 +102,6 @@
         android:ems="10"
         android:id="@+id/UartTxData"
         android:layout_gravity="top|left"
-        android:background="@color/background_floating_material_light"
         android:editable="true"
         android:enabled="true" />
 
